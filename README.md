@@ -1,4 +1,4 @@
-# SW2627-NextJS-Cloud-MediCycle
+# SW2627-NextJS-Cloud-PharmEasy
 
 # Team Working Agreement
 
