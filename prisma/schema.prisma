@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+}
+
+enum OrderStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum PaymentStatus {
+  SUCCESS
+  FAILED
+  RETRYING
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  password      String
+  address       String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  subscriptions Subscription[]
+  orders        Order[]
+  notifications Notification[]
+}
+
+model Medicine {
+  id            String         @id @default(cuid())
+  name          String
+  description   String?
+  price         Float
+  category      String?
+  imageUrl      String?
+  createdAt     DateTime       @default(now())
+
+  subscriptions Subscription[]
+  orderItems    OrderItem[]
+}
+
+model Subscription {
+  id             String              @id @default(cuid())
+  user           User                @relation(fields: [userId], references: [id])
+  userId         String
+  medicine       Medicine            @relation(fields: [medicineId], references: [id])
+  medicineId     String
+  frequency      Frequency
+  status         SubscriptionStatus  @default(ACTIVE)
+  nextRefillDate DateTime
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  orders         Order[]
+}
+
+model Order {
+  id             String        @id @default(cuid())
+  user           User          @relation(fields: [userId], references: [id])
+  userId         String
+  subscription   Subscription  @relation(fields: [subscriptionId], references: [id])
+  subscriptionId String
+  status         OrderStatus   @default(PENDING)
+  totalAmount    Float
+  createdAt      DateTime      @default(now())
+
+  items          OrderItem[]
+  payments       Payment[]
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  order      Order    @relation(fields: [orderId], references: [id])
+  orderId    String
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  medicineId String
+  quantity   Int      @default(1)
+  price      Float
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  order         Order         @relation(fields: [orderId], references: [id])
+  orderId       String
+  status        PaymentStatus
+  retryCount    Int           @default(0)
+  attemptedAt   DateTime      @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  message   String
+  type      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
