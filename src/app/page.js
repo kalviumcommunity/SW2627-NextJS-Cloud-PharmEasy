@@ -1,12 +1,28 @@
 import Navbar from "@/components/marketing/Navbar";
+import Hero from "@/components/marketing/Hero";
+import CategoryGrid from "@/components/marketing/CategoryGrid";
+import MedicineGrid from "@/components/marketing/MedicineGrid";
+import SubscriptionBanner from "@/components/marketing/SubscriptionBanner";
+import HowItWorks from "@/components/marketing/HowItWorks";
+import WhyChooseUs from "@/components/marketing/WhyChooseUs";
+import Testimonials from "@/components/marketing/Testimonials";
+import FAQ from "@/components/marketing/FAQ";
+import Newsletter from "@/components/marketing/Newsletter";
 
 export default function HomePage() {
   return (
     <>
       <Navbar />
-      <main style={{ padding: "60px 56px" }}>
-        <h1>Your Medicines Delivered On Time, Every Single Time.</h1>
-        <p>Search for authentic medicines, wellness essentials, and healthcare products.</p>
+      <main>
+        <Hero />
+        <CategoryGrid />
+        <SubscriptionBanner />
+        <HowItWorks />
+        <MedicineGrid />
+        <WhyChooseUs />
+        <Testimonials />
+        <FAQ />
+        <Newsletter />
       </main>
     </>
   );

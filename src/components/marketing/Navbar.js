@@ -1,65 +1,71 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export default function RegisterForm() {
+export default function Navbar() {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setMessage("");
-
-    if (!name || !email || !password) {
-      setMessage("Please fill all the fields");
-      return;
-    }
-    if (!email.includes("@")) {
-      setMessage("Please enter a valid email");
-      return;
-    }
-    if (password.length < 6) {
-      setMessage("Password must be at least 6 characters");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        setMessage(data.message || "Registration failed");
-        return;
-      }
-
-      router.push("/home");
-    } catch (err) {
-      setMessage("Server not responding. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Create your account</h1>
-      <input type="text" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} />
-      <input type="email" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      {message && <p style={{ color: "#B84A3B" }}>{message}</p>}
-      <button type="submit" disabled={loading}>
-        {loading ? "Creating account..." : "Sign Up"}
-      </button>
-    </form>
+    <header className="navbar">
+      <div className="nav-container">
+        {/* Left Side: Brand Logo and Main Links */}
+        <div className="nav-left">
+          <Link href="/" className="nav-logo-link">
+            PharmEasy<span className="logo-dot"></span>
+          </Link>
+          
+          <nav className="nav-links">
+            <Link href="/medicines" className="nav-link">
+              Medicines
+            </Link>
+            <Link href="/healthcare" className="nav-link">
+              Healthcare
+            </Link>
+            <Link href="/subscriptions" className="nav-link">
+              Subscriptions
+            </Link>
+            <Link href="/about" className="nav-link">
+              About
+            </Link>
+            <Link href="/contact" className="nav-link">
+              Contact
+            </Link>
+          </nav>
+        </div>
+
+        {/* Right Side: Search and Authentication Actions */}
+        <div className="nav-right-actions">
+          <div className="nav-search-bar">
+            <svg
+              className="nav-search-icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+            <input type="text" placeholder="Search medicines" />
+          </div>
+
+          <Link href="/login" className="login-btn">
+            Login
+          </Link>
+          
+          <button 
+            onClick={() => router.push("/register")} 
+            className="btn btn-primary signup-btn"
+          >
+            Sign Up
+          </button>
+        </div>
+      </div>
+    </header>
   );
 }

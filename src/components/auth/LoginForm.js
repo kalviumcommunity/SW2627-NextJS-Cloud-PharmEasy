@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -42,14 +43,62 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Log in to PharmEasy</h1>
-      <input type="email" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      {message && <p style={{ color: "#B84A3B" }}>{message}</p>}
-      <button type="submit" disabled={loading}>
-        {loading ? "Logging in..." : "Log In"}
-      </button>
-    </form>
+    <div className="auth-card">
+      <div className="auth-header">
+        <h1 className="auth-title">Welcome Back</h1>
+        <p className="auth-subtitle">Please enter your credentials to access your account</p>
+      </div>
+
+      <form className="auth-form" onSubmit={handleSubmit}>
+        {message && <div className="auth-error-msg">{message}</div>}
+
+        <div className="auth-form-group">
+          <label className="auth-form-label" htmlFor="email-input">
+            Email Address
+          </label>
+          <div className="auth-input-wrapper">
+            <input
+              id="email-input"
+              className="auth-input"
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="auth-form-group">
+          <label className="auth-form-label" htmlFor="password-input">
+            Password
+          </label>
+          <div className="auth-input-wrapper">
+            <input
+              id="password-input"
+              className="auth-input"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <button
+          className="btn btn-primary auth-submit-btn"
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? "Logging in..." : "Log In"}
+        </button>
+      </form>
+
+      <div className="auth-footer">
+        Don't have an account?{" "}
+        <Link href="/register" className="auth-link">
+          Sign Up
+        </Link>
+      </div>
+    </div>
   );
 }
