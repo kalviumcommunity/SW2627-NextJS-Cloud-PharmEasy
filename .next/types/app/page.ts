@@ -1,4 +1,4 @@
-// File: C:\Users\kavya\OneDrive\Desktop\PharmEasyFinal\SW2627-NextJS-Cloud-PharmEasy\src\app\page.js
+// File: C:\Users\GRACY SINGH\OneDrive\Desktop\pharmacy website\SW2627-NextJS-Cloud-PharmEasy\src\app\page.js
 import * as entry from '../../../src/app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

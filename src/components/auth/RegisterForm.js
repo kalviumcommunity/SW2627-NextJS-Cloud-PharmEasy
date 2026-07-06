@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -51,15 +52,78 @@ export default function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h1>Create your account</h1>
-      <input type="text" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} />
-      <input type="email" placeholder="Email address" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      {message && <p style={{ color: "#B84A3B" }}>{message}</p>}
-      <button type="submit" disabled={loading}>
-        {loading ? "Creating account..." : "Sign Up"}
-      </button>
-    </form>
+    <div className="auth-card">
+      <div className="auth-header">
+        <h1 className="auth-title">Create Account</h1>
+        <p className="auth-subtitle">Sign up to schedule and automate your medicine refills</p>
+      </div>
+
+      <form className="auth-form" onSubmit={handleSubmit}>
+        {message && <div className="auth-error-msg">{message}</div>}
+
+        <div className="auth-form-group">
+          <label className="auth-form-label" htmlFor="name-input">
+            Full Name
+          </label>
+          <div className="auth-input-wrapper">
+            <input
+              id="name-input"
+              className="auth-input"
+              type="text"
+              placeholder="John Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="auth-form-group">
+          <label className="auth-form-label" htmlFor="email-input">
+            Email Address
+          </label>
+          <div className="auth-input-wrapper">
+            <input
+              id="email-input"
+              className="auth-input"
+              type="email"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="auth-form-group">
+          <label className="auth-form-label" htmlFor="password-input">
+            Password
+          </label>
+          <div className="auth-input-wrapper">
+            <input
+              id="password-input"
+              className="auth-input"
+              type="password"
+              placeholder="Min. 6 characters"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <button
+          className="btn btn-primary auth-submit-btn"
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? "Creating account..." : "Sign Up"}
+        </button>
+      </form>
+
+      <div className="auth-footer">
+        Already have an account?{" "}
+        <Link href="/login" className="auth-link">
+          Log In
+        </Link>
+      </div>
+    </div>
   );
 }
