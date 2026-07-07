@@ -1,4 +1,4 @@
-// File: C:\Users\hp\Desktop\PharmEasy\SW2627-NextJS-Cloud-PharmEasy\src\app\api\auth\register\route.js
+// File: C:\Users\kavya\OneDrive\Desktop\PakkaFinalPharmEasy\SW2627-NextJS-Cloud-PharmEasy\src\app\api\auth\register\route.js
 import * as entry from '../../../../../../src/app/api/auth/register/route.js'
 import type { NextRequest } from 'next/server.js'
 
