@@ -4,8 +4,14 @@ import { prisma } from "@/lib/prisma";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
+function normalizeEmail(email) {
+  return email.trim().toLowerCase();
+}
+
 export async function registerUser({ name, email, password }) {
-  const existing = await prisma.user.findUnique({ where: { email } });
+  const normalizedEmail = normalizeEmail(email);
+
+  const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
   if (existing) {
     throw new Error("An account with this email already exists");
   }
@@ -13,7 +19,7 @@ export async function registerUser({ name, email, password }) {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await prisma.user.create({
-    data: { name, email, password: hashedPassword },
+    data: { name, email: normalizedEmail, password: hashedPassword },
   });
 
   const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "7d" });
@@ -22,7 +28,9 @@ export async function registerUser({ name, email, password }) {
 }
 
 export async function loginUser({ email, password }) {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const normalizedEmail = normalizeEmail(email);
+
+  const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
   if (!user) {
     throw new Error("Invalid email or password");
   }

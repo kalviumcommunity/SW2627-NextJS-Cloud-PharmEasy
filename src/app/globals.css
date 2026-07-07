@@ -1357,6 +1357,15 @@ p {
   padding: 10px 12px;
   border-radius: 4px;
 }
+.auth-success-msg {
+  font-size: 13px;
+  color: #15803d;
+  font-weight: 500;
+  background-color: #ecfdf3;
+  border-left: 3px solid #15803d;
+  padding: 10px 12px;
+  border-radius: 4px;
+}
 
 .auth-submit-btn {
   width: 100%;

@@ -11,10 +11,12 @@ export default function RegisterForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [success, setSuccess] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
     setMessage("");
+    setSuccess("");
 
     if (!name || !email || !password) {
       setMessage("Please fill all the fields");
@@ -40,13 +42,14 @@ export default function RegisterForm() {
 
       if (!res.ok) {
         setMessage(data.message || "Registration failed");
+        setLoading(false);
         return;
       }
 
-      router.push("/home");
+      setSuccess("Account created! Redirecting...");
+      setTimeout(() => router.push("/home"), 800);
     } catch (err) {
       setMessage("Server not responding. Please try again.");
-    } finally {
       setLoading(false);
     }
   }
@@ -60,6 +63,7 @@ export default function RegisterForm() {
 
       <form className="auth-form" onSubmit={handleSubmit}>
         {message && <div className="auth-error-msg">{message}</div>}
+        {success && <div className="auth-success-msg">{success}</div>}
 
         <div className="auth-form-group">
           <label className="auth-form-label" htmlFor="name-input">

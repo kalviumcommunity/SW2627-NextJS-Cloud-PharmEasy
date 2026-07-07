@@ -10,10 +10,12 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [success, setSuccess] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
     setMessage("");
+    setSuccess("");
 
     if (!email || !password) {
       setMessage("Please fill all the fields");
@@ -31,13 +33,14 @@ export default function LoginForm() {
 
       if (!res.ok) {
         setMessage(data.message || "Login failed");
+        setLoading(false);
         return;
       }
 
-      router.push("/home");
+      setSuccess("Login successful! Redirecting...");
+      setTimeout(() => router.push("/home"), 800);
     } catch (err) {
       setMessage("Server not responding. Please try again.");
-    } finally {
       setLoading(false);
     }
   }
@@ -51,6 +54,7 @@ export default function LoginForm() {
 
       <form className="auth-form" onSubmit={handleSubmit}>
         {message && <div className="auth-error-msg">{message}</div>}
+        {success && <div className="auth-success-msg">{success}</div>}
 
         <div className="auth-form-group">
           <label className="auth-form-label" htmlFor="email-input">
