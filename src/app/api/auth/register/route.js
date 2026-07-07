@@ -17,10 +17,12 @@ export async function POST(request) {
 
     const { user, token } = await registerUser({ name, email, password });
 
+    const isHttps = request.nextUrl.protocol === "https:";
+
     const response = NextResponse.json({ message: "Account created", user }, { status: 201 });
     response.cookies.set("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isHttps, // only require https when actually served over https (fixes localhost cookie being dropped)
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7,
       path: "/",
@@ -30,4 +32,3 @@ export async function POST(request) {
     return NextResponse.json({ message: err.message || "Registration failed" }, { status: 400 });
   }
 }
-// 

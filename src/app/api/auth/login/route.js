@@ -11,10 +11,12 @@ export async function POST(request) {
 
     const { user, token } = await loginUser({ email, password });
 
+    const isHttps = request.nextUrl.protocol === "https:";
+
     const response = NextResponse.json({ message: "Login successful", user });
     response.cookies.set("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isHttps, // only require https when actually served over https (fixes localhost cookie being dropped)
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7,
       path: "/",
