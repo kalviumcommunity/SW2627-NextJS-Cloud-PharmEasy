@@ -38,7 +38,7 @@ export default function LoginForm() {
       }
 
       setSuccess("Login successful! Redirecting...");
-      setTimeout(() => router.push("/home"), 800);
+      window.location.href = "/home";
     } catch (err) {
       setMessage("Server not responding. Please try again.");
       setLoading(false);
