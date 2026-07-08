@@ -2008,3 +2008,142 @@ p {
     justify-content: flex-end;
   }
 }
+
+/* ========================================== */
+/* 13. Profile Page Styles                    */
+/* ========================================== */
+
+.profile-page {
+  max-width: 760px;
+}
+
+.profile-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--color-border-light);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.profile-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--bg-mint);
+  color: var(--color-primary);
+  font-size: 22px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-summary-info h3 {
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+
+.profile-summary-info p {
+  font-size: 14px;
+}
+
+.profile-row-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 18px 24px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-border-light);
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: var(--transition-smooth);
+}
+
+.profile-row:hover {
+  background-color: var(--bg-mint-light);
+}
+
+.profile-row:last-child {
+  border-bottom: none;
+}
+
+.profile-row-icon {
+  font-size: 20px;
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.profile-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.profile-row-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-main);
+}
+
+.profile-row-sublabel {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.profile-row-chevron {
+  font-size: 20px;
+  color: var(--color-text-muted);
+}
+
+.profile-row-danger .profile-row-label {
+  color: #dc2626;
+}
+
+.profile-row-danger:hover {
+  background-color: #fef2f2;
+}
+
+.profile-address-editor {
+  padding: 20px 24px;
+  background-color: var(--bg-mint-light);
+  border-bottom: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-address-editor textarea {
+  resize: vertical;
+  font-family: var(--font-sans);
+}
+
+.profile-address-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-saved-tick {
+  font-size: 13px;
+  font-weight: 600;
+  color: #15803d;
+}
