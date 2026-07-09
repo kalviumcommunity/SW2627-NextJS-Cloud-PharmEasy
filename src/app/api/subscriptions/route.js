@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/auth";
 import { getSubscriptions, createSubscription } from "@/lib/services/subscription.service";
+import { subscriptionSchema } from "@/lib/validators/subscription.schema";
 
 export async function GET(request) {
   try {
@@ -26,15 +27,16 @@ export async function POST(request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { medicineId, frequency } = await request.json();
-    if (!medicineId || !frequency) {
+    const body = await request.json();
+    const parsed = subscriptionSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { message: "Medicine ID and frequency are required" },
+        { message: parsed.error.issues[0]?.message || "Invalid subscription details" },
         { status: 400 }
       );
     }
 
-    const subscription = await createSubscription({ userId, medicineId, frequency });
+    const subscription = await createSubscription({ userId, ...parsed.data });
     return NextResponse.json(subscription, { status: 201 });
   } catch (err) {
     return NextResponse.json(
