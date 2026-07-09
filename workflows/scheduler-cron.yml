@@ -1,0 +1,23 @@
+name: Auto-Refill Scheduler
+
+# NOTE: for GitHub Actions to pick this up, this file (or a copy of it) needs
+# to live at .github/workflows/scheduler-cron.yml in the repo root.
+
+on:
+  schedule:
+    # Runs at the top of every hour.
+    - cron: "0 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  trigger-scheduler:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the auto-refill scheduler endpoint
+        run: |
+          curl --fail --silent --show-error -X POST \
+            "${APP_URL}/api/scheduler/run" \
+            -H "Authorization: Bearer ${SCHEDULER_SECRET}"
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          SCHEDULER_SECRET: ${{ secrets.SCHEDULER_SECRET }}
