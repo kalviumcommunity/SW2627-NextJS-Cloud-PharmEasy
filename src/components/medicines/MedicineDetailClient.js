@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import FrequencySelector from "@/components/subscriptions/FrequencySelector";
+import FlowDrawer from "@/components/subscriptions/FlowDrawer";
+import DetailDrawer from "@/components/subscriptions/DetailDrawer";
+import { subscriptionSchema } from "@/lib/validators/subscription.schema";
 
 const EMOJI_MAP = {
   diabetes: "💉",
@@ -15,22 +19,36 @@ const EMOJI_MAP = {
 export default function MedicineDetailClient({ medicine, isLoggedIn }) {
   const router = useRouter();
   const [frequency, setFrequency] = useState("MONTHLY");
+  const [flowOpen, setFlowOpen] = useState(false);
+  const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const emoji = EMOJI_MAP[medicine.category?.toLowerCase()] || "💊";
 
-  async function handleSubscribe(e) {
+  function handleStartSubscribe(e) {
     e.preventDefault();
     if (!isLoggedIn) {
       router.push("/login");
       return;
     }
+    setError("");
+    setFlowOpen(true);
+  }
+
+  async function handleConfirmSubscribe() {
+    const parsed = subscriptionSchema.safeParse({
+      medicineId: medicine.id,
+      frequency,
+    });
+
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message || "Invalid subscription details");
+      return;
+    }
 
     setLoading(true);
     setError("");
-    setSuccess("");
 
     try {
       const res = await fetch("/api/subscriptions", {
@@ -38,10 +56,7 @@ export default function MedicineDetailClient({ medicine, isLoggedIn }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          medicineId: medicine.id,
-          frequency,
-        }),
+        body: JSON.stringify(parsed.data),
       });
 
       const data = await res.json();
@@ -52,14 +67,19 @@ export default function MedicineDetailClient({ medicine, isLoggedIn }) {
         return;
       }
 
-      setSuccess("Subscription created successfully! Redirecting to Dashboard...");
-      setTimeout(() => {
-        router.push("/home");
-      }, 1000);
+      setLoading(false);
+      setFlowOpen(false);
+      setSubscription(data);
     } catch (err) {
       setError("An error occurred. Please try again.");
       setLoading(false);
     }
+  }
+
+  function handleCloseFlow() {
+    if (loading) return;
+    setFlowOpen(false);
+    setError("");
   }
 
   return (
@@ -73,12 +93,10 @@ export default function MedicineDetailClient({ medicine, isLoggedIn }) {
       </Link>
 
       <div className="detail-grid">
-        {/* Left Column: Image Box */}
         <div className="detail-img-box">
           {emoji}
         </div>
 
-        {/* Right Column: Medicine details and Refill Selector */}
         <div className="detail-info-box">
           <div>
             <span className="badge badge-active" style={{ backgroundColor: "var(--bg-mint)", marginBottom: "12px" }}>
@@ -108,72 +126,18 @@ export default function MedicineDetailClient({ medicine, isLoggedIn }) {
             </div>
           </div>
 
-          {/* Subscription setup Form */}
-          <form onSubmit={handleSubscribe} className="subscribe-config-card">
-            <div className="subscribe-frequency-group">
-              <label style={{ fontSize: "15px", fontWeight: "600", color: "var(--color-text-main)" }}>
-                Select Refill Frequency:
-              </label>
-              
-              <div className="frequency-options">
-                <div>
-                  <input
-                    type="radio"
-                    id="freq-daily"
-                    name="frequency"
-                    value="DAILY"
-                    className="frequency-radio"
-                    checked={frequency === "DAILY"}
-                    onChange={(e) => setFrequency(e.target.value)}
-                  />
-                  <label htmlFor="freq-daily" className="frequency-option-label">
-                    Daily
-                  </label>
-                </div>
+          <form onSubmit={handleStartSubscribe} className="subscribe-config-card">
+            <FrequencySelector value={frequency} onChange={setFrequency} />
 
-                <div>
-                  <input
-                    type="radio"
-                    id="freq-weekly"
-                    name="frequency"
-                    value="WEEKLY"
-                    className="frequency-radio"
-                    checked={frequency === "WEEKLY"}
-                    onChange={(e) => setFrequency(e.target.value)}
-                  />
-                  <label htmlFor="freq-weekly" className="frequency-option-label">
-                    Weekly
-                  </label>
-                </div>
-
-                <div>
-                  <input
-                    type="radio"
-                    id="freq-monthly"
-                    name="frequency"
-                    value="MONTHLY"
-                    className="frequency-radio"
-                    checked={frequency === "MONTHLY"}
-                    onChange={(e) => setFrequency(e.target.value)}
-                  />
-                  <label htmlFor="freq-monthly" className="frequency-option-label">
-                    Monthly
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {error && <div className="auth-error-msg">{error}</div>}
-            {success && <div className="auth-success-msg">{success}</div>}
+            {error && !flowOpen && <div className="auth-error-msg">{error}</div>}
 
             {isLoggedIn ? (
               <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={loading}
                 style={{ width: "100%", padding: "16px", fontSize: "16px", fontWeight: "600", cursor: "pointer", justifyContent: "center" }}
               >
-                {loading ? "Creating Subscription..." : "Set Up Auto-Refill"}
+                Set Up Auto-Refill
               </button>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "12px", textAlign: "center" }}>
@@ -190,6 +154,22 @@ export default function MedicineDetailClient({ medicine, isLoggedIn }) {
           </form>
         </div>
       </div>
+
+      <FlowDrawer
+        open={flowOpen}
+        medicine={medicine}
+        frequency={frequency}
+        loading={loading}
+        error={error}
+        onConfirm={handleConfirmSubscribe}
+        onClose={handleCloseFlow}
+      />
+
+      <DetailDrawer
+        open={!!subscription}
+        subscription={subscription}
+        onClose={() => setSubscription(null)}
+      />
     </div>
   );
 }

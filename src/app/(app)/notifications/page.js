@@ -1,8 +1,16 @@
-export default function NotificationsPage() {
-  return (
-    <div style={{ padding: "40px 24px" }}>
-      <h1 style={{ marginBottom: "20px" }}>Your Notifications</h1>
-      <p>Stay updated on your upcoming refills and payments.</p>
-    </div>
-  );
+import { redirect } from "next/navigation";
+import { getUserIdFromRequest } from "@/lib/auth";
+import { getNotifications } from "@/lib/services/notification.service";
+import NotificationList from "@/components/notifications/NotificationList";
+
+export default async function NotificationsPage() {
+  const userId = getUserIdFromRequest();
+  if (!userId) {
+    redirect("/login");
+  }
+
+  const notifications = await getNotifications(userId);
+  const serializedNotifications = JSON.parse(JSON.stringify(notifications));
+
+  return <NotificationList initialNotifications={serializedNotifications} />;
 }
