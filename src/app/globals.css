@@ -268,159 +268,165 @@ p {
   font-size: 14px;
 }
 
-/* 2. Hero Section */
+/* 2. Hero Section — centered, warm apothecary, watermark motif */
 .hero {
-  padding: 100px 0 80px 0;
-  background: linear-gradient(180deg, #ffffff 0%, var(--bg-main) 100%);
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  padding: 110px 0 90px 0;
+  background: linear-gradient(180deg, #fbf8f1 0%, #f3ecdc 100%);
   overflow: hidden;
 }
 
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 60px;
-  align-items: center;
+.hero-glow {
+  position: absolute;
+  top: -180px;
+  right: -140px;
+  width: 560px;
+  height: 560px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 138, 62, 0.16) 0%, rgba(201, 138, 62, 0) 70%);
+  z-index: 0;
 }
 
-.hero-content {
+.hero-tile-pattern {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260' viewBox='0 0 260 260'%3E%3Cg fill='%233a3428' fill-opacity='0.09'%3E%3Cg transform='translate(20,30) rotate(-25)'%3E%3Crect x='0' y='0' width='70' height='28' rx='14'/%3E%3C/g%3E%3Ccircle cx='190' cy='40' r='16'/%3E%3Cg transform='translate(150,140)'%3E%3Crect x='10' y='20' width='40' height='60' rx='6'/%3E%3Crect x='22' y='6' width='16' height='16' rx='3'/%3E%3C/g%3E%3Cg transform='translate(40,170)'%3E%3Crect x='10' y='0' width='10' height='40'/%3E%3Crect x='0' y='10' width='30' height='10'/%3E%3C/g%3E%3Ccircle cx='230' cy='200' r='8'/%3E%3Ccircle cx='90' cy='230' r='6'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 260px 260px;
+  background-repeat: repeat;
+}
+
+/* Radial scrim: solid cream behind the centered copy, fading out toward
+   the edges so the icon pattern shows through — the same technique
+   Netflix uses with its poster wall, just inverted for a light theme. */
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(
+    ellipse 780px 620px at 50% 46%,
+    #fbf8f1 0%,
+    #fbf8f1 45%,
+    rgba(251, 248, 241, 0.55) 70%,
+    rgba(251, 248, 241, 0) 100%
+  );
+}
+.hero-grid {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  align-items: center;
+  text-align: center;
+  gap: 26px;
+  max-width: 780px;
+  margin: 0 auto;
 }
 
 .hero-badge {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  color: var(--color-primary);
+  letter-spacing: 2.5px;
+  color: #8a5a24;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+}
+
+.hero-badge-dash {
+  width: 26px;
+  height: 1.5px;
+  background-color: #c98a3e;
+  display: inline-block;
 }
 
 .hero-title {
-  font-size: 54px;
-  font-weight: 700;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 58px;
+  font-weight: 600;
   color: var(--color-text-main);
-  line-height: 1.15;
-  letter-spacing: -1px;
+  line-height: 1.14;
+  letter-spacing: -0.5px;
+}
+
+.hero-title em {
+  font-style: italic;
+  font-weight: 500;
+  color: #8a5a24;
+}
+
+.hero-subtitle {
+  font-size: 17px;
+  color: var(--color-text-muted);
+  max-width: 480px;
+  line-height: 1.65;
 }
 
 .hero-search-container {
   display: flex;
   gap: 12px;
   width: 100%;
-  max-width: 580px;
+  max-width: 560px;
+  margin-top: 8px;
 }
 
 .hero-search-container .search-wrapper {
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 8px 24px rgba(58, 52, 40, 0.08);
   transition: var(--transition-smooth);
 }
 
 .hero-search-container .search-wrapper:focus-within {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px rgba(16, 96, 78, 0.08);
-}
-
-.hero-ticks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-}
-
-.hero-tick-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text-muted);
-}
-
-.hero-tick-icon {
-  color: var(--color-primary);
-  font-weight: bold;
+  border-color: #c98a3e;
+  box-shadow: 0 0 0 4px rgba(201, 138, 62, 0.12);
 }
 
 .hero-buttons {
   display: flex;
   gap: 16px;
-  margin-top: 10px;
-}
-
-.hero-illustration {
-  position: relative;
-  display: flex;
+  margin-top: 4px;
   justify-content: center;
-  align-items: center;
 }
 
-.hero-circle-bg {
-  position: relative;
-  width: 380px;
-  height: 380px;
-  background-color: var(--bg-mint);
-  border-radius: 50%;
+.hero-stats {
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: floatAnimation 6s ease-in-out infinite;
+  gap: 28px;
+  margin-top: 18px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(58, 52, 40, 0.1);
 }
 
-.hero-vector-capsule {
-  transform: rotate(-15deg);
-  filter: drop-shadow(0 10px 20px rgba(16, 96, 78, 0.12));
-}
-
-.hero-badge-check {
-  position: absolute;
-  top: 80px;
-  left: 20px;
-  background-color: #cf8421;
-  color: white;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 16px rgba(207, 132, 33, 0.3);
-}
-
-.hero-badge-check svg {
-  width: 22px;
-  height: 22px;
-}
-
-.hero-vector-card {
-  position: absolute;
-  bottom: 60px;
-  right: 50px;
-  width: 140px;
-  height: 90px;
-  background-color: white;
-  border: 2px solid var(--color-primary);
-  border-radius: 12px;
+.hero-stat-item {
   display: flex;
   flex-direction: column;
-  padding: 12px;
-  box-shadow: var(--shadow-md);
+  align-items: center;
+  gap: 2px;
 }
 
-.hero-card-line-top {
-  width: 100%;
-  height: 24px;
-  border-bottom: 2px solid var(--color-primary);
-  margin-bottom: 12px;
+.hero-stat-number {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 23px;
+  font-weight: 600;
+  color: var(--color-text-main);
+  line-height: 1;
 }
 
-.hero-card-line-bottom {
-  width: 50%;
-  height: 6px;
-  background-color: var(--color-primary);
-  border-radius: 3px;
+.hero-stat-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.hero-stat-divider {
+  width: 1px;
+  height: 30px;
+  background-color: rgba(58, 52, 40, 0.12);
 }
 
 @keyframes floatAnimation {
@@ -428,7 +434,6 @@ p {
   50% { transform: translateY(-10px); }
   100% { transform: translateY(0px); }
 }
-
 /* 3. Shop by Category */
 .section-title-center {
   text-align: center;
