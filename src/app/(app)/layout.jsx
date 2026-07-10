@@ -1,4 +1,5 @@
 import Sidebar from "@/components/app-shell/Sidebar";
+import Topbar from "@/components/app-shell/Topbar";
 
 export default function AppLayout({ children }) {
   return (
@@ -6,6 +7,7 @@ export default function AppLayout({ children }) {
       <Sidebar />
 
       <div className="main-section">
+        <Topbar />
         <main className="content">{children}</main>
 
         <footer className="footer">
