@@ -1,7 +1,7 @@
 import Navbar from "@/components/marketing/Navbar";
 import Hero from "@/components/marketing/Hero";
-import CategoryGrid from "@/components/marketing/CategoryGrid";
-import MedicineGrid from "@/components/marketing/MedicineGrid";
+// import CategoryGrid from "@/components/marketing/CategoryGrid";
+// import MedicineGrid from "@/components/marketing/MedicineGrid";
 import SubscriptionBanner from "@/components/marketing/SubscriptionBanner";
 import HowItWorks from "@/components/marketing/HowItWorks";
 import WhyChooseUs from "@/components/marketing/WhyChooseUs";
@@ -15,10 +15,8 @@ export default function HomePage() {
       <Navbar />
       <main>
         <Hero />
-        <CategoryGrid />
         <SubscriptionBanner />
         <HowItWorks />
-        <MedicineGrid />
         <WhyChooseUs />
         <Testimonials />
         <FAQ />
