@@ -155,9 +155,9 @@ p {
   top: 0;
   z-index: 100;
   width: 100%;
-  background-color: #ffffff;
-  border-bottom: 1px solid var(--color-border-light);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01);
+  background-color: var(--color-primary);
+  border-bottom: 1px solid var(--color-primary);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .nav-container {
@@ -177,7 +177,7 @@ p {
   text-decoration: none;
   font-size: 24px;
   font-weight: 700;
-  color: var(--color-primary);
+  color: #ffffff;
 }
 
 .logo-dot {
@@ -253,19 +253,29 @@ p {
 .login-btn {
   font-size: 15px;
   font-weight: 600;
-  color: var(--color-text-main);
+  color: #ffffff;
   text-decoration: none;
   cursor: pointer;
   transition: var(--transition-smooth);
 }
 
 .login-btn:hover {
-  color: var(--color-primary);
+  color: #e5eceb;
 }
 
 .signup-btn {
   padding: 10px 20px;
   font-size: 14px;
+  background-color: #ffffff !important;
+  color: var(--color-primary) !important;
+}
+
+.signup-btn:hover {
+  background-color: #f2f0ea !important;
+}
+
+.signup-btn:active {
+  background-color: #e5eceb !important;
 }
 
 /* 2. Hero Section — centered, warm apothecary, watermark motif */
