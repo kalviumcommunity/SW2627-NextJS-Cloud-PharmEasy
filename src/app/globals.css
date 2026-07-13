@@ -15,7 +15,7 @@
   --color-border-light: #f0ede6;
   --color-rating: #f0a500;
   
-  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: 'Fraunces', Georgia, serif;
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --shadow-sm: 0 2px 8px rgba(29, 42, 37, 0.04);
   --shadow-md: 0 4px 20px rgba(29, 42, 37, 0.06);
@@ -149,6 +149,7 @@ p {
 
 /* Components Specific Classes */
 
+
 /* 1. Navbar styling */
 .navbar {
   position: sticky;
@@ -173,37 +174,22 @@ p {
 .nav-logo-link {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   text-decoration: none;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
+  letter-spacing: -0.3px;
   color: #ffffff;
+  line-height: 1;
 }
 
-.logo-dot {
-  width: 8px;
-  height: 8px;
-  background-color: var(--color-primary);
-  border-radius: 50%;
-  display: inline-block;
+.nav-logo-link:hover {
+  opacity: 0.9;
 }
 
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-}
-
-.nav-link {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--color-text-muted);
-  text-decoration: none;
-  transition: var(--transition-smooth);
-}
-
-.nav-link:hover {
-  color: var(--color-primary);
+.nav-logo-icon {
+  flex-shrink: 0;
+  display: block;
 }
 
 .nav-right-actions {
@@ -211,43 +197,84 @@ p {
   align-items: center;
   gap: 24px;
 }
+.nav-links--desktop {
+  display: none;
+  gap: 4px;
+}
 
-.nav-search-bar {
+.nav-right-actions--desktop {
+  display: none;
+}
+
+.nav-link {
   display: flex;
   align-items: center;
-  background-color: #ffffff;
-  border: 1px solid var(--color-border-light);
+  gap: 6px;
+  padding: 8px 14px;
   border-radius: 8px;
-  padding: 2px 12px;
-  width: 240px;
-  height: 40px;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
   transition: var(--transition-smooth);
 }
 
-.nav-search-bar:focus-within {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(16, 96, 78, 0.08);
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-.nav-search-bar input {
-  border: none;
-  outline: none;
-  background: transparent;
-  padding: 4px 8px;
+.nav-link.active {
+  background-color: rgba(255, 255, 255, 0.18);
+  font-weight: 600;
+}
+
+.navbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background-color: #ffd700;
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
   font-size: 14px;
-  width: 100%;
-  font-family: var(--font-sans);
 }
 
-.nav-search-bar input::placeholder {
-  color: #b3c0bb;
+.navbar-hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
 }
 
-.nav-search-icon {
-  color: var(--color-text-muted);
-  opacity: 0.6;
-  width: 16px;
-  height: 16px;
+.navbar-hamburger span {
+  width: 22px;
+  height: 2px;
+  background: #ffffff;
+}
+
+.navbar-mobile-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 24px 20px;
+  background-color: var(--color-primary);
+}
+
+@media (min-width: 768px) {
+  .nav-links--desktop,
+  .nav-right-actions--desktop {
+    display: flex;
+    align-items: center;
+  }
+  .navbar-hamburger,
+  .navbar-mobile-menu {
+    display: none;
+  }
 }
 
 .login-btn {
@@ -277,7 +304,6 @@ p {
 .signup-btn:active {
   background-color: #e5eceb !important;
 }
-
 /* 2. Hero Section — centered, warm apothecary, watermark motif */
 .hero {
   position: relative;
@@ -365,12 +391,13 @@ p {
 }
 
 .hero-title em {
-  font-style: italic;
-  font-weight: 500;
-  color: #8a5a24;
+  font-style: normal;
+  font-weight: 600;
+  color: var(--color-primary);
 }
 
 .hero-subtitle {
+  font-family: 'Fraunces', Georgia, serif;
   font-size: 17px;
   color: var(--color-text-muted);
   max-width: 480px;
@@ -439,6 +466,8 @@ p {
   background-color: rgba(58, 52, 40, 0.12);
 }
 
+
+
 @keyframes floatAnimation {
   0% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
@@ -446,13 +475,13 @@ p {
 }
 /* 3. Shop by Category */
 .section-title-center {
+  font-family: 'Fraunces', Georgia, serif;
   text-align: center;
   font-size: 36px;
   margin-bottom: 48px;
   font-weight: 600;
   color: var(--color-text-main);
 }
-
 .category-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -630,6 +659,7 @@ p {
 }
 
 .sub-banner-title {
+  font-family: 'Fraunces', Georgia, serif;
   font-size: 40px;
   font-weight: 700;
   color: var(--color-text-main);
@@ -637,6 +667,7 @@ p {
 }
 
 .sub-banner-description {
+  font-family: 'Fraunces', Georgia, serif;
   font-size: 16px;
   line-height: 1.6;
 }
@@ -811,6 +842,7 @@ p {
 
 /* 7. Why Choose Us */
 .why-choose-title {
+  font-family: 'Fraunces', Georgia, serif;
   text-align: center;
   font-size: 36px;
   margin-bottom: 48px;
@@ -897,6 +929,7 @@ p {
 }
 
 .testimonial-quote {
+  font-family: 'Fraunces', Georgia, serif;
   font-size: 24px;
   font-weight: 400;
   line-height: 1.6;
@@ -1030,6 +1063,7 @@ p {
 }
 
 .newsletter-title {
+  font-family: 'Fraunces', Georgia, serif;
   font-size: 32px;
   font-weight: 600;
 }
@@ -1429,97 +1463,6 @@ p {
 /* 11. Dashboard & App Shell Layout Styling   */
 /* ========================================== */
 
-.app-layout {
-  display: flex;
-  min-height: 100vh;
-  background-color: var(--bg-main);
-}
-
-.sidebar {
-  width: 280px;
-  background-color: var(--color-primary);
-  color: #ffffff;
-  padding: 40px 24px;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  box-shadow: var(--shadow-lg);
-  position: sticky;
-  top: 0;
-  height: 100vh;
-}
-
-.sidebar h2 {
-  color: #ffffff;
-  font-size: 26px;
-  font-weight: 700;
-  margin-bottom: 48px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.sidebar h2 .logo-dot {
-  background-color: #ffd700; /* gold accent inside dashboard logo */
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.sidebar nav {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-}
-
-.sidebar nav a {
-  color: rgba(255, 255, 255, 0.85);
-  text-decoration: none;
-  padding: 14px 18px;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 15px;
-  transition: var(--transition-smooth);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.sidebar nav a:hover {
-  color: #ffffff;
-  background-color: rgba(255, 255, 255, 0.08);
-}
-
-.sidebar nav a.active {
-  color: #ffffff;
-  background-color: rgba(255, 255, 255, 0.15);
-  font-weight: 600;
-}
-
-.sidebar-logout-btn {
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
-  text-align: left;
-  padding: 14px 18px;
-  font-size: 15px;
-  font-weight: 500;
-  font-family: var(--font-sans);
-  cursor: pointer;
-  border-radius: 8px;
-  transition: var(--transition-smooth);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: auto;
-  width: 100%;
-}
-
-.sidebar-logout-btn:hover {
-  color: #ff6b6b;
-  background-color: rgba(255, 107, 107, 0.08);
-}
 
 .main-section {
   flex: 1;
@@ -2179,6 +2122,12 @@ p {
   z-index: 10;
 }
 
+.topbar-search-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
 .topbar-search-bar {
   display: flex;
   align-items: center;
@@ -2207,6 +2156,12 @@ p {
   font-size: 14px;
   width: 100%;
   font-family: var(--font-sans);
+}
+
+.topbar-search-bar svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 .topbar-search-bar input::placeholder {
@@ -2340,6 +2295,13 @@ p {
 .drawer-footer .btn {
   flex: 1;
   justify-content: center;
+}
+.nav-logo-icon {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
 }
 
 @keyframes drawer-fade-in {
