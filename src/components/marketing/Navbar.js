@@ -1,128 +1,40 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-const APP_NAV_ITEMS = [
-  { label: "Home", href: "/home", icon: "🏠" },
-  { label: "Medicines", href: "/medicines", icon: "💊" },
-  { label: "Orders", href: "/orders", icon: "🚚" },
-  { label: "Subscriptions", href: "/subscriptions", icon: "🔄" },
-  { label: "Notifications", href: "/notifications", icon: "🔔" },
-  { label: "Profile", href: "/profile", icon: "👤" },
-];
-
-export default function Navbar({ user }) {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const pathname = usePathname();
+export default function Navbar() {
   const router = useRouter();
-
-  const isActive = (href) =>
-    pathname === href || pathname?.startsWith(`${href}/`);
-
-  async function handleLogout() {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-    } finally {
-      router.push("/login");
-      router.refresh();
-    }
-  }
-
-  const initial = user?.name?.charAt(0)?.toUpperCase() ?? "?";
 
   return (
     <header className="navbar">
       <div className="nav-container">
         {/* Left Side: Brand Logo */}
-        <Link href="/" className="nav-logo-link">
-          <svg
-            width="38"
-            height="38"
-            viewBox="0 0 200 200"
-            xmlns="http://www.w3.org/2000/svg"
-            className="nav-logo-icon"
-          >
-            <g transform="translate(100,100) rotate(-18)">
-              <path
-                d="M 0 -26 H -46 A 26 26 0 0 0 -72 0 A 26 26 0 0 0 -46 26 H 0 Z"
-                fill="#f3ecdc"
-              />
-              <path
-                d="M 0 -26 H 46 A 26 26 0 0 1 72 0 A 26 26 0 0 1 46 26 H 0 Z"
-                fill="#c98a3e"
-              />
-            </g>
-          </svg>
-          PharmEasy
-        </Link>
+        <div className="nav-left">
+          <Link href="/" className="nav-logo-link">
+            <img
+              src=""
+              alt="PharmEasy logo"
+              className="nav-logo-icon"
+            />
+            PharmEasy
+          </Link>
+        </div>
 
         {/* Right Side: Authentication Actions */}
         <div className="nav-right-actions">
           <Link href="/login" className="login-btn">
             Login
           </Link>
-
-          <button
-            onClick={() => router.push("/register")}
+          
+          <button 
+            onClick={() => router.push("/register")} 
             className="btn btn-primary signup-btn"
           >
             Sign Up
           </button>
         </div>
-
-        {/* Mobile hamburger */}
-        <button
-          className="navbar-hamburger"
-          aria-label="Toggle navigation menu"
-          aria-expanded={mobileOpen}
-          onClick={() => setMobileOpen((open) => !open)}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
       </div>
-
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="navbar-mobile-menu">
-          {user ? (
-            <>
-              {APP_NAV_ITEMS.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={isActive(item.href) ? "nav-link active" : "nav-link"}
-                >
-                  <span aria-hidden="true">{item.icon}</span>
-                  {item.label}
-                </Link>
-              ))}
-              <button onClick={handleLogout} className="login-btn">
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="login-btn" onClick={() => setMobileOpen(false)}>
-                Login
-              </Link>
-              <button
-                onClick={() => {
-                  setMobileOpen(false);
-                  router.push("/register");
-                }}
-                className="btn btn-primary signup-btn"
-              >
-                Sign Up
-              </button>
-            </>
-          )}
-        </div>
-      )}
     </header>
   );
 }
