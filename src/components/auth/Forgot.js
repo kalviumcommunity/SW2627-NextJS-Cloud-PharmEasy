@@ -1,13 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function LoginForm() {
-  const router = useRouter();
+export default function Forgot() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState("");
@@ -17,30 +14,31 @@ export default function LoginForm() {
     setMessage("");
     setSuccess("");
 
-    if (!email || !password) {
-      setMessage("Please fill all the fields");
+    if (!email) {
+      setMessage("Please enter your email");
       return;
     }
 
     try {
       setLoading(true);
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email }),
       });
       const data = await res.json();
 
       if (!res.ok) {
-        setMessage(data.message || "Login failed");
+        setMessage(data.message || "Failed to send reset link");
         setLoading(false);
         return;
       }
 
-      setSuccess("Login successful! Redirecting...");
-      window.location.href = "/home";
+      setSuccess(data.message || "Reset link sent to your email");
+      setEmail("");
     } catch (err) {
       setMessage("Server not responding. Please try again.");
+    } finally {
       setLoading(false);
     }
   }
@@ -48,8 +46,10 @@ export default function LoginForm() {
   return (
     <div className="auth-card">
       <div className="auth-header">
-        <h1 className="auth-title">Welcome Back</h1>
-        <p className="auth-subtitle">Please enter your credentials to access your account</p>
+        <h1 className="auth-title">Forgot Password</h1>
+        <p className="auth-subtitle">
+          Enter your registered email and we'll send you a reset link
+        </p>
       </div>
 
       <form className="auth-form" onSubmit={handleSubmit}>
@@ -72,43 +72,21 @@ export default function LoginForm() {
           </div>
         </div>
 
-        <div className="auth-form-group">
-          <label className="auth-form-label" htmlFor="password-input">
-            Password
-          </label>
-          <div className="auth-input-wrapper">
-            <input
-              id="password-input"
-              className="auth-input"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-        </div>
-
         <button
           className="btn btn-primary auth-submit-btn"
           type="submit"
           disabled={loading}
         >
-          {loading ? "Logging in..." : "Log In"}
+          {loading ? "Sending..." : "Send Reset Link"}
         </button>
       </form>
-      <div className="auth-form-links" style={{ textAlign: "left" }}>
-        <Link href="/forgot-password" className="auth-link">
-          Forgot password?
-        </Link>
-      </div>
 
       <div className="auth-footer">
-        Don't have an account?{" "}
-        <Link href="/register" className="auth-link">
-          Sign Up
+        Remembered your password?{" "}
+        <Link href="/login" className="auth-link">
+          Log In
         </Link>
       </div>
     </div>
-    
   );
 }
