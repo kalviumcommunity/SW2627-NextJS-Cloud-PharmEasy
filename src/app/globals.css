@@ -197,6 +197,85 @@ p {
   align-items: center;
   gap: 24px;
 }
+.nav-links--desktop {
+  display: none;
+  gap: 4px;
+}
+
+.nav-right-actions--desktop {
+  display: none;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  transition: var(--transition-smooth);
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+  background-color: rgba(255, 255, 255, 0.18);
+  font-weight: 600;
+}
+
+.navbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background-color: #ffd700;
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.navbar-hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.navbar-hamburger span {
+  width: 22px;
+  height: 2px;
+  background: #ffffff;
+}
+
+.navbar-mobile-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 24px 20px;
+  background-color: var(--color-primary);
+}
+
+@media (min-width: 768px) {
+  .nav-links--desktop,
+  .nav-right-actions--desktop {
+    display: flex;
+    align-items: center;
+  }
+  .navbar-hamburger,
+  .navbar-mobile-menu {
+    display: none;
+  }
+}
 
 .login-btn {
   font-size: 15px;
@@ -1384,97 +1463,6 @@ p {
 /* 11. Dashboard & App Shell Layout Styling   */
 /* ========================================== */
 
-.app-layout {
-  display: flex;
-  min-height: 100vh;
-  background-color: var(--bg-main);
-}
-
-.sidebar {
-  width: 280px;
-  background-color: var(--color-primary);
-  color: #ffffff;
-  padding: 40px 24px;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  box-shadow: var(--shadow-lg);
-  position: sticky;
-  top: 0;
-  height: 100vh;
-}
-
-.sidebar h2 {
-  color: #ffffff;
-  font-size: 26px;
-  font-weight: 700;
-  margin-bottom: 48px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.sidebar h2 .logo-dot {
-  background-color: #ffd700; /* gold accent inside dashboard logo */
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.sidebar nav {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-}
-
-.sidebar nav a {
-  color: rgba(255, 255, 255, 0.85);
-  text-decoration: none;
-  padding: 14px 18px;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 15px;
-  transition: var(--transition-smooth);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.sidebar nav a:hover {
-  color: #ffffff;
-  background-color: rgba(255, 255, 255, 0.08);
-}
-
-.sidebar nav a.active {
-  color: #ffffff;
-  background-color: rgba(255, 255, 255, 0.15);
-  font-weight: 600;
-}
-
-.sidebar-logout-btn {
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
-  text-align: left;
-  padding: 14px 18px;
-  font-size: 15px;
-  font-weight: 500;
-  font-family: var(--font-sans);
-  cursor: pointer;
-  border-radius: 8px;
-  transition: var(--transition-smooth);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: auto;
-  width: 100%;
-}
-
-.sidebar-logout-btn:hover {
-  color: #ff6b6b;
-  background-color: rgba(255, 107, 107, 0.08);
-}
 
 .main-section {
   flex: 1;
