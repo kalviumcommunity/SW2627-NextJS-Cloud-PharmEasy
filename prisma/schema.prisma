@@ -37,6 +37,8 @@ model User {
   email         String         @unique
   password      String
   address       String?
+  resetOtp       String?
+  resetOtpExpiry DateTime?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
