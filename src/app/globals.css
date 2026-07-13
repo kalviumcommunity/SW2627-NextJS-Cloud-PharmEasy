@@ -15,7 +15,7 @@
   --color-border-light: #f0ede6;
   --color-rating: #f0a500;
   
-  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: 'Fraunces', Georgia, serif;
   --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --shadow-sm: 0 2px 8px rgba(29, 42, 37, 0.04);
   --shadow-md: 0 4px 20px rgba(29, 42, 37, 0.06);
@@ -149,6 +149,7 @@ p {
 
 /* Components Specific Classes */
 
+
 /* 1. Navbar styling */
 .navbar {
   position: sticky;
@@ -173,81 +174,28 @@ p {
 .nav-logo-link {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   text-decoration: none;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
+  letter-spacing: -0.3px;
   color: #ffffff;
+  line-height: 1;
 }
 
-.logo-dot {
-  width: 8px;
-  height: 8px;
-  background-color: var(--color-primary);
-  border-radius: 50%;
-  display: inline-block;
+.nav-logo-link:hover {
+  opacity: 0.9;
 }
 
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-}
-
-.nav-link {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--color-text-muted);
-  text-decoration: none;
-  transition: var(--transition-smooth);
-}
-
-.nav-link:hover {
-  color: var(--color-primary);
+.nav-logo-icon {
+  flex-shrink: 0;
+  display: block;
 }
 
 .nav-right-actions {
   display: flex;
   align-items: center;
   gap: 24px;
-}
-
-.nav-search-bar {
-  display: flex;
-  align-items: center;
-  background-color: #ffffff;
-  border: 1px solid var(--color-border-light);
-  border-radius: 8px;
-  padding: 2px 12px;
-  width: 240px;
-  height: 40px;
-  transition: var(--transition-smooth);
-}
-
-.nav-search-bar:focus-within {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(16, 96, 78, 0.08);
-}
-
-.nav-search-bar input {
-  border: none;
-  outline: none;
-  background: transparent;
-  padding: 4px 8px;
-  font-size: 14px;
-  width: 100%;
-  font-family: var(--font-sans);
-}
-
-.nav-search-bar input::placeholder {
-  color: #b3c0bb;
-}
-
-.nav-search-icon {
-  color: var(--color-text-muted);
-  opacity: 0.6;
-  width: 16px;
-  height: 16px;
 }
 
 .login-btn {
@@ -277,7 +225,6 @@ p {
 .signup-btn:active {
   background-color: #e5eceb !important;
 }
-
 /* 2. Hero Section — centered, warm apothecary, watermark motif */
 .hero {
   position: relative;
@@ -365,12 +312,13 @@ p {
 }
 
 .hero-title em {
-  font-style: italic;
-  font-weight: 500;
-  color: #8a5a24;
+  font-style: normal;
+  font-weight: 600;
+  color: var(--color-primary);
 }
 
 .hero-subtitle {
+  font-family: 'Fraunces', Georgia, serif;
   font-size: 17px;
   color: var(--color-text-muted);
   max-width: 480px;
@@ -439,6 +387,8 @@ p {
   background-color: rgba(58, 52, 40, 0.12);
 }
 
+
+
 @keyframes floatAnimation {
   0% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
@@ -446,13 +396,13 @@ p {
 }
 /* 3. Shop by Category */
 .section-title-center {
+  font-family: 'Fraunces', Georgia, serif;
   text-align: center;
   font-size: 36px;
   margin-bottom: 48px;
   font-weight: 600;
   color: var(--color-text-main);
 }
-
 .category-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -630,6 +580,7 @@ p {
 }
 
 .sub-banner-title {
+  font-family: 'Fraunces', Georgia, serif;
   font-size: 40px;
   font-weight: 700;
   color: var(--color-text-main);
@@ -637,6 +588,7 @@ p {
 }
 
 .sub-banner-description {
+  font-family: 'Fraunces', Georgia, serif;
   font-size: 16px;
   line-height: 1.6;
 }
@@ -811,6 +763,7 @@ p {
 
 /* 7. Why Choose Us */
 .why-choose-title {
+  font-family: 'Fraunces', Georgia, serif;
   text-align: center;
   font-size: 36px;
   margin-bottom: 48px;
@@ -897,6 +850,7 @@ p {
 }
 
 .testimonial-quote {
+  font-family: 'Fraunces', Georgia, serif;
   font-size: 24px;
   font-weight: 400;
   line-height: 1.6;
@@ -1030,6 +984,7 @@ p {
 }
 
 .newsletter-title {
+  font-family: 'Fraunces', Georgia, serif;
   font-size: 32px;
   font-weight: 600;
 }
@@ -2340,6 +2295,13 @@ p {
 .drawer-footer .btn {
   flex: 1;
   justify-content: center;
+}
+.nav-logo-icon {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
 }
 
 @keyframes drawer-fade-in {

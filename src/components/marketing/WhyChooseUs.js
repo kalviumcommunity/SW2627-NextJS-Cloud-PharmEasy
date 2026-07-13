@@ -88,7 +88,7 @@ export default function WhyChooseUs() {
     <section style={{ backgroundColor: "#ffffff" }}>
       <div className="container">
         <h2 className="why-choose-title">
-          <span style={{ fontSize: "28px" }}>❤️</span> Why Choose PharmEasy
+          <span style={{ fontSize: "28px" }}></span> Why Choose PharmEasy
         </h2>
         
         <div className="why-choose-grid">
