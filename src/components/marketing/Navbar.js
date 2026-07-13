@@ -35,52 +35,41 @@ export default function Navbar({ user }) {
   return (
     <header className="navbar">
       <div className="nav-container">
-        <div className="nav-left">
-          <Link href={user ? "/home" : "/"} className="nav-logo-link">
-            <img src="" alt="PharmEasy logo" className="nav-logo-icon" />
-            PharmEasy
+        {/* Left Side: Brand Logo */}
+        <Link href="/" className="nav-logo-link">
+          <svg
+            width="38"
+            height="38"
+            viewBox="0 0 200 200"
+            xmlns="http://www.w3.org/2000/svg"
+            className="nav-logo-icon"
+          >
+            <g transform="translate(100,100) rotate(-18)">
+              <path
+                d="M 0 -26 H -46 A 26 26 0 0 0 -72 0 A 26 26 0 0 0 -46 26 H 0 Z"
+                fill="#f3ecdc"
+              />
+              <path
+                d="M 0 -26 H 46 A 26 26 0 0 1 72 0 A 26 26 0 0 1 46 26 H 0 Z"
+                fill="#c98a3e"
+              />
+            </g>
+          </svg>
+          PharmEasy
+        </Link>
+
+        {/* Right Side: Authentication Actions */}
+        <div className="nav-right-actions">
+          <Link href="/login" className="login-btn">
+            Login
           </Link>
-        </div>
 
-        {/* Desktop links */}
-        {user && (
-          <nav className="nav-links nav-links--desktop">
-            {APP_NAV_ITEMS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={isActive(item.href) ? "nav-link active" : "nav-link"}
-              >
-                <span aria-hidden="true">{item.icon}</span>
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        )}
-
-        <div className="nav-right-actions nav-right-actions--desktop">
-          {user ? (
-            <>
-              <span className="navbar-avatar" title={user.email}>
-                {initial}
-              </span>
-              <button onClick={handleLogout} className="login-btn">
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="login-btn">
-                Login
-              </Link>
-              <button
-                onClick={() => router.push("/register")}
-                className="btn btn-primary signup-btn"
-              >
-                Sign Up
-              </button>
-            </>
-          )}
+          <button
+            onClick={() => router.push("/register")}
+            className="btn btn-primary signup-btn"
+          >
+            Sign Up
+          </button>
         </div>
 
         {/* Mobile hamburger */}

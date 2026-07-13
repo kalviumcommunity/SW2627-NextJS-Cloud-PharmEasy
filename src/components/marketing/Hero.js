@@ -19,8 +19,8 @@ export default function Hero() {
       
       <div className="container hero-grid">
         <div className="hero-badge">
-          <span className="hero-badge-dash"></span>
-          Trusted Online Pharmacy
+
+          -Trusted Online Pharmacy-
         </div>
 
         <h1 className="hero-title">
@@ -30,7 +30,7 @@ export default function Hero() {
         </h1>
 
         <p className="hero-subtitle">
-          Set your refill once — we track the schedule, confirm payment,
+          Set your refill once, we track the schedule, confirm payment,
           and have it at your door before the last dose runs out.
         </p>
 
