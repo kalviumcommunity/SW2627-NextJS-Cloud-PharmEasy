@@ -13,8 +13,8 @@
 | Member | Name | Technical Strength |
 |--------|------|--------------------|
 | **Member 1 (Project Admin)** | Kavya Kakkar | React, Node.js |
-| **Member 2** | Gracy Singh | Design, MongoDB |
-| **Member 3** | Somya | Front-end, Express.js |
+| **Member 2** | Gracy Singh | Prisma, Next.js |
+| **Member 3** | Somya | Front-end, Next.js |
 
 ---
 
