@@ -1428,99 +1428,201 @@ p {
 /* ========================================== */
 /* 11. Dashboard & App Shell Layout Styling   */
 /* ========================================== */
-
-.app-layout {
-  display: flex;
-  min-height: 100vh;
-  background-color: var(--bg-main);
-}
-
-.sidebar {
-  width: 280px;
+.app-navbar {
   background-color: var(--color-primary);
   color: #ffffff;
-  padding: 40px 24px;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  box-shadow: var(--shadow-lg);
   position: sticky;
   top: 0;
-  height: 100vh;
+  z-index: 100;
+  box-shadow: var(--shadow-lg);
 }
 
-.sidebar h2 {
-  color: #ffffff;
-  font-size: 26px;
-  font-weight: 700;
-  margin-bottom: 48px;
+.app-navbar-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 48px;
+}
+
+.app-navbar-logo {
   display: flex;
   align-items: center;
   gap: 8px;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 22px;
+  font-weight: 700;
+  flex-shrink: 0;
 }
 
-.sidebar h2 .logo-dot {
-  background-color: #ffd700; /* gold accent inside dashboard logo */
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.sidebar nav {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.app-navbar-links {
+  display: none;
+  align-items: center;
+  gap: 4px;
   flex: 1;
 }
 
-.sidebar nav a {
-  color: rgba(255, 255, 255, 0.85);
-  text-decoration: none;
-  padding: 14px 18px;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 15px;
-  transition: var(--transition-smooth);
+.app-nav-link {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: var(--transition-smooth);
 }
 
-.sidebar nav a:hover {
+.app-nav-link:hover {
   color: #ffffff;
   background-color: rgba(255, 255, 255, 0.08);
 }
 
-.sidebar nav a.active {
+.app-nav-link.active {
   color: #ffffff;
   background-color: rgba(255, 255, 255, 0.15);
   font-weight: 600;
 }
 
-.sidebar-logout-btn {
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
-  text-align: left;
-  padding: 14px 18px;
-  font-size: 15px;
-  font-weight: 500;
-  font-family: var(--font-sans);
-  cursor: pointer;
-  border-radius: 8px;
-  transition: var(--transition-smooth);
+.app-navbar-search {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: auto;
+  gap: 8px;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px 14px;
+  max-width: 280px;
+  flex-shrink: 0;
+}
+
+.app-navbar-search svg {
+  width: 18px;
+  height: 18px;
+  color: rgba(255, 255, 255, 0.8);
+  flex-shrink: 0;
+}
+
+.app-navbar-search input {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #ffffff;
+  font-size: 14px;
   width: 100%;
 }
 
-.sidebar-logout-btn:hover {
-  color: #ff6b6b;
-  background-color: rgba(255, 107, 107, 0.08);
+.app-navbar-search input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
 }
 
+.app-navbar-bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #ffffff;
+  flex-shrink: 0;
+  transition: var(--transition-smooth);
+}
+
+.app-navbar-bell:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.app-navbar-bell-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 50px;
+  background-color: #dc2626;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-primary);
+}
+
+.app-navbar-logout {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.app-navbar-logout:hover {
+  color: #ffffff;
+}
+
+.app-navbar-hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.app-navbar-hamburger span {
+  width: 22px;
+  height: 2px;
+  background: #ffffff;
+}
+
+.app-navbar-mobile-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 24px 20px;
+  background-color: var(--color-primary);
+}
+
+@media (min-width: 992px) {
+  .app-navbar-links,
+  .app-navbar-logout {
+    display: flex;
+  }
+  .app-navbar-hamburger,
+  .app-navbar-mobile-menu {
+    display: none;
+  }
+}
+
+@media (max-width: 991px) {
+  .app-navbar-row {
+    padding: 14px 24px;
+    flex-wrap: wrap;
+  }
+  .app-navbar-search {
+    order: 3;
+    max-width: none;
+    flex-basis: 100%;
+  }
+}
+
+.main-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
 .main-section {
   flex: 1;
   display: flex;
