@@ -1,9 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Hero() {
   const router = useRouter();
+  const [query, setQuery] = useState("");
+
+  function handleSearchSubmit(e) {
+    if (e) e.preventDefault();
+    const trimmed = query.trim();
+    router.push(trimmed ? `/medicines?q=${encodeURIComponent(trimmed)}` : "/medicines");
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === "Enter") {
+      handleSearchSubmit();
+    }
+  }
 
   return (
     <section className="hero">
@@ -55,9 +69,16 @@ export default function Hero() {
             <input
               type="text"
               placeholder="Search for medicines, wellness, healthcare products"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
             />
           </div>
-          <button className="btn btn-primary" style={{ padding: "0 32px" }}>
+          <button 
+            className="btn btn-primary" 
+            style={{ padding: "0 32px" }}
+            onClick={handleSearchSubmit}
+          >
             Search
           </button>
         </div>

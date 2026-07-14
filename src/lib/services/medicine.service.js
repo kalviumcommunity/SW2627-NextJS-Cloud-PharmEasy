@@ -10,10 +10,13 @@ export async function getMedicines({ query = "", category = "" } = {}) {
     };
   }
 
-  if (query) {
+  const trimmedQuery = typeof query === "string" ? query.trim() : "";
+
+  if (trimmedQuery) {
     where.OR = [
-      { name: { contains: query, mode: "insensitive" } },
-      { description: { contains: query, mode: "insensitive" } },
+      { name: { contains: trimmedQuery, mode: "insensitive" } },
+      { description: { contains: trimmedQuery, mode: "insensitive" } },
+      { category: { contains: trimmedQuery, mode: "insensitive" } },
     ];
   }
 
