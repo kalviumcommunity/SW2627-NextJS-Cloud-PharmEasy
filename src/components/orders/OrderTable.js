@@ -2,7 +2,7 @@
 
 import { useOrders } from "@/hooks/useOrders";
 import { ORDER_STATUS } from "@/lib/utils/constants";
-import { formatDate } from "@/lib/utils/date";
+import { formatDate, formatDateTime } from "@/lib/utils/date";
 
 const STATUS_CLASS = {
   [ORDER_STATUS.SUCCESS]: "order-status-success",
@@ -67,6 +67,11 @@ export default function OrderTable({ initialOrders }) {
                         <span className={`order-status ${STATUS_CLASS[order.status] || ""}`}>
                           ● {order.status}
                         </span>
+                        {isPending && order.nextPaymentAttemptAt && (
+                          <div style={{ fontSize: "12px", color: "var(--color-text-muted)", marginTop: "4px" }}>
+                            Next retry: {formatDateTime(order.nextPaymentAttemptAt)}
+                          </div>
+                        )}
                       </td>
                       <td>
                         {isPending ? (

@@ -80,6 +80,15 @@ export const NOTIFICATION_TYPE = {
 // before the order is permanently marked FAILED.
 export const MAX_PAYMENT_RETRIES = 3;
 
+// How long to wait before each retry after a failed attempt.
+// Index 0 = delay before retry #1 (after the 1st failure), index 1 = delay
+// before retry #2, etc. Length should match MAX_PAYMENT_RETRIES.
+export const PAYMENT_RETRY_BACKOFF_MS = [
+  60 * 60 * 1000,       // 1 hour
+  4 * 60 * 60 * 1000,   // 4 hours
+  24 * 60 * 60 * 1000,  // 24 hours
+];
+
 // Probability that a non-forced (scheduler-driven) payment attempt succeeds.
 export const PAYMENT_SUCCESS_PROBABILITY = 0.7;
 
