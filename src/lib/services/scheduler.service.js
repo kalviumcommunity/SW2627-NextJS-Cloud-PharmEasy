@@ -3,27 +3,12 @@ import { attemptPayment } from "@/lib/services/payment.service";
 import { addIntervalForFrequency } from "@/lib/utils/date";
 import { SUBSCRIPTION_STATUS, ORDER_STATUS } from "@/lib/utils/constants";
 
-/**
- * Finds every ACTIVE subscription whose nextRefillDate has arrived, and for
- * each one:
- *   1. Creates a PENDING Order (+ OrderItem) for the subscribed medicine.
- *   2. Calls attemptPayment() with no forced outcome, so the simulated
- *      gateway decides success/failure on its own.
- *   3. Advances the subscription's nextRefillDate by one frequency interval.
- *
- * A failure processing one subscription (e.g. a bad medicine reference)
- * is caught and recorded per-subscription so it doesn't stop the rest of
- * the batch from running.
- *
- * Returns a summary suitable for the trigger endpoint / cron job logs.
- */
-export async function runScheduler() {
-  const now = new Date();
-
+async function processNewlyDueSubscriptions(now) {
   const dueSubscriptions = await prisma.subscription.findMany({
     where: {
       status: SUBSCRIPTION_STATUS.ACTIVE,
       nextRefillDate: { lte: now },
+      orders: { none: { status: ORDER_STATUS.PENDING } },
     },
     include: { medicine: true },
   });
@@ -52,17 +37,21 @@ export async function runScheduler() {
 
       const { order: settledOrder, payment } = await attemptPayment(order.id);
 
-      const nextRefillDate = addIntervalForFrequency(subscription.nextRefillDate, subscription.frequency);
-      await prisma.subscription.update({
-        where: { id: subscription.id },
-        data: { nextRefillDate },
-      });
+      let nextRefillDate = subscription.nextRefillDate;
+      if (settledOrder.status !== ORDER_STATUS.PENDING) {
+        nextRefillDate = addIntervalForFrequency(subscription.nextRefillDate, subscription.frequency);
+        await prisma.subscription.update({
+          where: { id: subscription.id },
+          data: { nextRefillDate },
+        });
+      }
 
       results.push({
         subscriptionId: subscription.id,
         orderId: order.id,
         orderStatus: settledOrder.status,
         paymentStatus: payment.status,
+        nextPaymentAttemptAt: settledOrder.nextPaymentAttemptAt,
         nextRefillDate,
       });
     } catch (err) {
@@ -73,9 +62,67 @@ export async function runScheduler() {
     }
   }
 
+  return results;
+}
+
+async function processDueRetries(now) {
+  const dueRetryOrders = await prisma.order.findMany({
+    where: {
+      status: ORDER_STATUS.PENDING,
+      nextPaymentAttemptAt: { lte: now },
+    },
+    include: { subscription: true },
+  });
+
+  const results = [];
+
+  for (const order of dueRetryOrders) {
+    try {
+      const { order: settledOrder, payment } = await attemptPayment(order.id);
+
+      let nextRefillDate = order.subscription?.nextRefillDate ?? null;
+      if (settledOrder.status !== ORDER_STATUS.PENDING && order.subscription) {
+        nextRefillDate = addIntervalForFrequency(
+          order.subscription.nextRefillDate,
+          order.subscription.frequency
+        );
+        await prisma.subscription.update({
+          where: { id: order.subscription.id },
+          data: { nextRefillDate },
+        });
+      }
+
+      results.push({
+        subscriptionId: order.subscriptionId,
+        orderId: order.id,
+        orderStatus: settledOrder.status,
+        paymentStatus: payment.status,
+        nextPaymentAttemptAt: settledOrder.nextPaymentAttemptAt,
+        nextRefillDate,
+      });
+    } catch (err) {
+      results.push({
+        orderId: order.id,
+        error: err.message || "Failed to retry payment for order",
+      });
+    }
+  }
+
+  return results;
+}
+
+export async function runScheduler() {
+  const now = new Date();
+
+  const newSubscriptionResults = await processNewlyDueSubscriptions(now);
+  const retryResults = await processDueRetries(now);
+
+  const results = [...newSubscriptionResults, ...retryResults];
+
   return {
     ranAt: now,
-    dueCount: dueSubscriptions.length,
+    newlyDueCount: newSubscriptionResults.length,
+    retriesDueCount: retryResults.length,
     processed: results.length,
     results,
   };

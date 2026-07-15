@@ -5,6 +5,7 @@ import {
   PAYMENT_STATUS,
   MAX_PAYMENT_RETRIES,
   PAYMENT_SUCCESS_PROBABILITY,
+  PAYMENT_RETRY_BACKOFF_MS,
   NOTIFICATION_TYPE,
 } from "@/lib/utils/constants";
 
@@ -19,31 +20,32 @@ function formatCurrency(amount) {
   return `Rs. ${Number(amount).toFixed(2)}`;
 }
 
+/** How long to wait before the next retry, given how many attempts have been made so far. */
+function backoffDelayFor(attemptsMade) {
+  return (
+    PAYMENT_RETRY_BACKOFF_MS[attemptsMade] ??
+    PAYMENT_RETRY_BACKOFF_MS[PAYMENT_RETRY_BACKOFF_MS.length - 1]
+  );
+}
+
 /**
  * Attempts payment for an order.
  *
  * @param {string} orderId
  * @param {{ forceOutcome?: "SUCCESS" | "FAILED" }} options
- *   forceOutcome lets callers (e.g. the demo "Simulate Success/Failure"
- *   endpoint) bypass the random simulation. When omitted, the outcome is
- *   randomized, which is what the scheduler uses.
  *
  * Behavior:
- *   - Reads how many payment attempts already exist for this order. That
- *     count becomes the `retryCount` for this attempt (0 = first attempt).
  *   - On SUCCESS: writes a SUCCESS Payment row, marks the Order SUCCESS,
- *     and notifies the user.
- *   - On FAILURE: writes a Payment row.
- *       - If this was the last allowed attempt (retryCount === MAX_PAYMENT_RETRIES),
- *         the Payment is marked FAILED, the Order is marked FAILED, and the
- *         user is notified the retries are exhausted.
- *       - Otherwise the Payment is marked RETRYING, the Order stays PENDING
- *         (a future call -- from the scheduler's next run, or a manual demo
- *         retry -- will make the next attempt), and the user is notified the
- *         attempt failed.
+ *     clears nextPaymentAttemptAt, and notifies the user.
+ *   - On FAILURE with retries remaining: writes a RETRYING Payment row,
+ *     leaves the Order PENDING, and sets nextPaymentAttemptAt to now +
+ *     the backoff delay for this attempt number, so the scheduler knows
+ *     exactly when to try again.
+ *   - On FAILURE with retries exhausted: writes a FAILED Payment row,
+ *     marks the Order FAILED, clears nextPaymentAttemptAt, and notifies
+ *     the user the order was cancelled.
  *
- * Throws if the order does not exist, or is not currently PENDING (i.e. it
- * was already resolved as SUCCESS or FAILED).
+ * Throws if the order does not exist, or is not currently PENDING.
  */
 export async function attemptPayment(orderId, { forceOutcome } = {}) {
   const order = await prisma.order.findUnique({
@@ -80,7 +82,7 @@ export async function attemptPayment(orderId, { forceOutcome } = {}) {
     });
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
-      data: { status: ORDER_STATUS.SUCCESS },
+      data: { status: ORDER_STATUS.SUCCESS, nextPaymentAttemptAt: null },
     });
 
     await createNotification({
@@ -106,7 +108,7 @@ export async function attemptPayment(orderId, { forceOutcome } = {}) {
   if (retriesExhausted) {
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
-      data: { status: ORDER_STATUS.FAILED },
+      data: { status: ORDER_STATUS.FAILED, nextPaymentAttemptAt: null },
     });
 
     await createNotification({
@@ -118,11 +120,19 @@ export async function attemptPayment(orderId, { forceOutcome } = {}) {
     return { order: updatedOrder, payment };
   }
 
+  // Retries remain — schedule the next attempt via backoff instead of
+  // waiting for the subscription's next full refill cycle.
+  const nextPaymentAttemptAt = new Date(Date.now() + backoffDelayFor(attemptsMade));
+  const updatedOrder = await prisma.order.update({
+    where: { id: orderId },
+    data: { nextPaymentAttemptAt },
+  });
+
   await createNotification({
     userId: order.userId,
     message: `Payment for your ${medicineName} refill failed. We'll retry automatically (attempt ${attemptsMade + 1} of ${MAX_PAYMENT_RETRIES + 1}).`,
     type: NOTIFICATION_TYPE.PAYMENT_FAILED,
   });
 
-  return { order, payment };
+  return { order: updatedOrder, payment };
 }
