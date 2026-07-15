@@ -36,6 +36,14 @@ export default function MedicineDetailClient({ medicine, isLoggedIn }) {
     setFlowOpen(true);
   }
 
+  function handleBuyNow() {
+    if (!isLoggedIn) {
+      router.push("/login");
+      return;
+    }
+    router.push(`/checkout?medicineId=${medicine.id}`);
+  }
+
   async function handleConfirmSubscribe() {
     const parsed = subscriptionSchema.safeParse({
       medicineId: medicine.id,
@@ -132,13 +140,23 @@ export default function MedicineDetailClient({ medicine, isLoggedIn }) {
             {error && !flowOpen && <div className="auth-error-msg">{error}</div>}
 
             {isLoggedIn ? (
-              <button
-                type="submit"
-                className="btn btn-primary"
-                style={{ width: "100%", padding: "16px", fontSize: "16px", fontWeight: "600", cursor: "pointer", justifyContent: "center" }}
-              >
-                Set Up Auto-Refill
-              </button>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <button
+                  type="button"
+                  onClick={handleBuyNow}
+                  className="btn btn-secondary"
+                  style={{ width: "100%", padding: "16px", fontSize: "16px", fontWeight: "600", cursor: "pointer", justifyContent: "center" }}
+                >
+                  Buy Now
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ width: "100%", padding: "16px", fontSize: "16px", fontWeight: "600", cursor: "pointer", justifyContent: "center" }}
+                >
+                  Set Up Auto-Refill
+                </button>
+              </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "12px", textAlign: "center" }}>
                 <p style={{ fontSize: "14px", color: "var(--color-text-muted)" }}>

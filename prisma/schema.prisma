@@ -79,8 +79,8 @@ model Order {
   id                   String        @id @default(cuid())
   user                 User          @relation(fields: [userId], references: [id])
   userId               String
-  subscription         Subscription  @relation(fields: [subscriptionId], references: [id])
-  subscriptionId       String
+  subscription         Subscription? @relation(fields: [subscriptionId], references: [id])
+  subscriptionId       String?
   status               OrderStatus   @default(PENDING)
   totalAmount          Float
   nextPaymentAttemptAt DateTime?
