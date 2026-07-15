@@ -1,16 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const EMOJI_MAP = {
-  diabetes: "💉",
-  hypertension: "🩹",
-  thyroid: "💊",
-  cardiac: "❤️",
-  supplements: "🧃",
-};
+const WEEKDAY_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+const EXPLORE_MEDICINES = [
+  { name: "CoQ10", rating: 4.6 },
+  { name: "Vitamin D3", rating: 4.8 },
+  { name: "Omega-3", rating: 4.7 },
+  { name: "Calcium", rating: 4.8 },
+  { name: "Vitamin B12", rating: 4.9 },
+];
+
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function isSameDay(a, b) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
 
 export default function DashboardClient({
   initialUser,
@@ -20,15 +37,19 @@ export default function DashboardClient({
 }) {
   const router = useRouter();
   const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
-  const [orders, setOrders] = useState(initialOrders);
+  const [orders] = useState(initialOrders);
   const [notifications, setNotifications] = useState(initialNotifications);
-  
+
   const [actionLoading, setActionLoading] = useState(null);
   const [notifLoading, setNotifLoading] = useState(false);
 
+  const today = new Date();
+  const [viewYear, setViewYear] = useState(today.getFullYear());
+  const [viewMonth, setViewMonth] = useState(today.getMonth());
+  const [selectedDay, setSelectedDay] = useState(null);
+
   // Stats calculation
   const activeSubs = subscriptions.filter((s) => s.status === "ACTIVE");
-  const pausedSubs = subscriptions.filter((s) => s.status === "PAUSED");
 
   let nextRefillText = "No refills scheduled";
   if (activeSubs.length > 0) {
@@ -45,12 +66,141 @@ export default function DashboardClient({
 
   const unreadNotifsCount = notifications.filter((n) => !n.read).length;
 
-  const todayText = new Date().toLocaleDateString("en-IN", {
+  const todayText = today.toLocaleDateString("en-IN", {
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
   });
+
+  // "This week" chip strip — built from real refill + order data
+  const weekChips = useMemo(() => {
+    const chips = [];
+    const weekFromNow = new Date();
+    weekFromNow.setDate(weekFromNow.getDate() + 7);
+
+    activeSubs.forEach((s) => {
+      const refillDate = new Date(s.nextRefillDate);
+      if (refillDate >= today && refillDate <= weekFromNow) {
+        chips.push({
+          key: `refill-${s.id}`,
+          type: "refill",
+          icon: "💊",
+          label: `${s.medicine?.name || "Medicine"} refill · ${refillDate.toLocaleDateString(
+            "en-IN",
+            { weekday: "short" }
+          )}`,
+        });
+      }
+    });
+
+    (orders || [])
+      .filter((o) => o.status === "PENDING")
+      .slice(0, 2)
+      .forEach((o) => {
+        const placed = new Date(o.createdAt);
+        const estDelivery = new Date(placed);
+        estDelivery.setDate(estDelivery.getDate() + 3);
+        chips.push({
+          key: `order-${o.id}`,
+          type: "delivery",
+          icon: "🚚",
+          label: `Order delivery · ${estDelivery.toLocaleDateString("en-IN", {
+            weekday: "short",
+            day: "numeric",
+          })}`,
+        });
+      });
+
+    return chips;
+  }, [activeSubs, orders]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Month calendar generation — builds full per-day detail objects
+  // (not just booleans) so the hover tooltip and click modal have real data.
+  const calendarCells = useMemo(() => {
+    const firstOfMonth = new Date(viewYear, viewMonth, 1);
+    const startWeekday = firstOfMonth.getDay(); // 0 = Sunday
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+    // day-of-month -> { refills: [...], deliveries: [...] }
+    const dayDetailsMap = {};
+
+    activeSubs.forEach((s) => {
+      const refillDate = new Date(s.nextRefillDate);
+      if (refillDate.getFullYear() === viewYear && refillDate.getMonth() === viewMonth) {
+        const day = refillDate.getDate();
+        if (!dayDetailsMap[day]) dayDetailsMap[day] = { refills: [], deliveries: [] };
+        dayDetailsMap[day].refills.push({
+          id: s.id,
+          medicineName: s.medicine?.name || "Medicine",
+          frequency: s.frequency,
+        });
+      }
+    });
+
+    (orders || [])
+      .filter((o) => o.status === "PENDING")
+      .forEach((o) => {
+        // No real delivery-date field on Order yet — estimated as createdAt + 3 days.
+        const est = new Date(o.createdAt);
+        est.setDate(est.getDate() + 3);
+        if (est.getFullYear() === viewYear && est.getMonth() === viewMonth) {
+          const day = est.getDate();
+          if (!dayDetailsMap[day]) dayDetailsMap[day] = { refills: [], deliveries: [] };
+          dayDetailsMap[day].deliveries.push({
+            id: o.id,
+            totalAmount: o.totalAmount,
+            estimated: true,
+          });
+        }
+      });
+
+    const cells = [];
+    for (let i = 0; i < startWeekday; i++) cells.push(null);
+    for (let day = 1; day <= daysInMonth; day++) {
+      const cellDate = new Date(viewYear, viewMonth, day);
+      const details = dayDetailsMap[day] || { refills: [], deliveries: [] };
+      cells.push({
+        day,
+        date: cellDate,
+        isToday: isSameDay(cellDate, today),
+        hasRefill: details.refills.length > 0,
+        hasDelivery: details.deliveries.length > 0,
+        dateLabel: cellDate.toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }),
+        weekdayLabel: cellDate.toLocaleDateString("en-IN", { weekday: "long" }),
+        refills: details.refills,
+        deliveries: details.deliveries,
+      });
+    }
+    return cells;
+  }, [viewYear, viewMonth, activeSubs, orders]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const monthLabel = new Date(viewYear, viewMonth, 1).toLocaleDateString("en-IN", {
+    month: "long",
+    year: "numeric",
+  });
+
+  function goToPrevMonth() {
+    if (viewMonth === 0) {
+      setViewMonth(11);
+      setViewYear((y) => y - 1);
+    } else {
+      setViewMonth((m) => m - 1);
+    }
+  }
+
+  function goToNextMonth() {
+    if (viewMonth === 11) {
+      setViewMonth(0);
+      setViewYear((y) => y + 1);
+    } else {
+      setViewMonth((m) => m + 1);
+    }
+  }
 
   // Actions
   async function handleUpdateStatus(subId, newStatus) {
@@ -111,223 +261,240 @@ export default function DashboardClient({
 
   return (
     <div>
-      {/* Dashboard Greeting Header */}
-      <div className="dashboard-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      {/* Header: greeting + compact stats */}
+      <div className="dashboard-header-row">
         <div>
-          <h1>Hello, {initialUser.name}!</h1>
-          <p>{todayText} | Your auto-refill summary dashboard</p>
+          <h1 className="dashboard-greeting">
+            {getGreeting()}, {initialUser.name}
+          </h1>
+          <p className="dashboard-date">{todayText}</p>
         </div>
-        <button onClick={handleLogout} className="btn btn-secondary btn-sm" style={{ borderColor: "#fee2e2", color: "#dc2626", backgroundColor: "#fff" }}>
-          Log Out
-        </button>
+
+        <div className="dashboard-stats-inline">
+          <div className="stat-pill">
+            <span className="stat-pill-label">Next refill</span>
+            <span className="stat-pill-value">{nextRefillText}</span>
+          </div>
+          <div className="stat-pill">
+            <span className="stat-pill-label">Active subscriptions</span>
+            <span className="stat-pill-value">{activeSubs.length}</span>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="btn btn-secondary btn-sm logout-btn-inline"
+          >
+            Log Out
+          </button>
+        </div>
       </div>
 
-      {/* Stats Widgets Grid */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <span className="stat-label">Active Subscriptions</span>
-          <span className="stat-value">{activeSubs.length}</span>
+      {/* This week chip strip */}
+      {weekChips.length > 0 && (
+        <div className="week-chip-strip">
+          {weekChips.map((chip) => (
+            <span className={`week-chip week-chip-${chip.type}`} key={chip.key}>
+              <span className="week-chip-icon">{chip.icon}</span>
+              {chip.label}
+            </span>
+          ))}
         </div>
-        <div className="stat-card">
-          <span className="stat-label">Next Scheduled Refill</span>
-          <span className="stat-value" style={{ fontSize: "20px", marginTop: "10px" }}>{nextRefillText}</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-label">Total Refill Orders</span>
-          <span className="stat-value">{orders.length}</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-label">Unread Notifications</span>
-          <span className="stat-value">{unreadNotifsCount}</span>
-        </div>
-      </div>
+      )}
 
       {/* Two Column Grid */}
       <div className="dashboard-grid">
-        {/* Left Column: Subscriptions and Orders */}
+        {/* Left Column: Calendar */}
         <div>
-          {/* Subscriptions Section */}
-          <div className="dashboard-section">
+          <div className="dashboard-section calendar-card">
+            <div className="calendar-card-header">
+              <h2 className="section-title">📅 {monthLabel}</h2>
+
+              <div className="calendar-legend">
+                <span className="legend-item">
+                  <i className="legend-dot legend-dot-refill" /> Refill
+                </span>
+                <span className="legend-item">
+                  <i className="legend-dot legend-dot-delivery" /> Delivery
+                </span>
+              </div>
+
+              <div className="calendar-nav">
+                <button
+                  type="button"
+                  onClick={goToPrevMonth}
+                  aria-label="Previous month"
+                  className="calendar-nav-btn"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={goToNextMonth}
+                  aria-label="Next month"
+                  className="calendar-nav-btn"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+
+            <div className="calendar-weekday-row">
+              {WEEKDAY_LABELS.map((d) => (
+                <div key={d}>{d}</div>
+              ))}
+            </div>
+
+            <div className="calendar-month-grid">
+              {calendarCells.map((cell, i) =>
+                cell ? (
+                  <div
+                    className="calendar-day"
+                    key={i}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setSelectedDay(cell)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") setSelectedDay(cell);
+                    }}
+                  >
+                    {cell.isToday ? (
+                      <span className="today-number-badge">{cell.day}</span>
+                    ) : (
+                      <span>{cell.day}</span>
+                    )}
+                    {cell.hasRefill && <div className="refill-dot" />}
+                    {cell.hasDelivery && <div className="delivery-dot" />}
+
+                    {/* Hover tooltip: pure CSS, no extra requests — date always shows,
+                        detail rows only render if that day actually has a refill/delivery */}
+                    <div className="day-tooltip">
+                      <div className="day-tooltip-date">{cell.dateLabel}</div>
+                      <div className="day-tooltip-weekday">{cell.weekdayLabel}</div>
+                      {cell.refills.map((r) => (
+                        <div className="day-tooltip-item day-tooltip-refill" key={`r-${r.id}`}>
+                          💊 {r.medicineName} refill
+                        </div>
+                      ))}
+                      {cell.deliveries.map((d) => (
+                        <div className="day-tooltip-item day-tooltip-delivery" key={`d-${d.id}`}>
+                          🚚 Order delivery (est.)
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="calendar-day calendar-day-empty" key={i} />
+                )
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Notifications + Explore Medicines */}
+        <div className="right-sidebar">
+          <div className="dashboard-section notifications">
             <div className="section-title-area">
-              <h2 className="section-title">Your Refill Subscriptions</h2>
-              <Link href="/medicines" className="btn btn-primary btn-sm">
-                + Add Subscription
+              <h2 className="section-title">Notifications</h2>
+              <Link href="/notifications" className="view-all-link">
+                View all →
               </Link>
             </div>
 
-            {subscriptions.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-state-icon">📦</div>
-                <h4>No Subscriptions Yet</h4>
-                <p>Browse our catalog and set up auto-refills for medicines you take regularly.</p>
-                <Link href="/medicines" className="btn btn-primary" style={{ marginTop: "12px" }}>
-                  Browse Medicines
-                </Link>
-              </div>
-            ) : (
-              <div className="sub-list">
-                {subscriptions.map((sub) => {
-                  const emoji = EMOJI_MAP[sub.medicine.category?.toLowerCase()] || "💊";
-                  const nextRefillFormatted = new Date(sub.nextRefillDate).toLocaleDateString("en-IN", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  });
-                  return (
-                    <div key={sub.id} className="sub-item-card">
-                      <div className="sub-item-info">
-                        <div className="sub-item-icon">{emoji}</div>
-                        <div className="sub-item-details">
-                          <h4 style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            {sub.medicine.name}
-                            <span className={`badge ${sub.status === "ACTIVE" ? "badge-active" : sub.status === "PAUSED" ? "badge-paused" : "badge-cancelled"}`}>
-                              {sub.status.toLowerCase()}
-                            </span>
-                          </h4>
-                          <p style={{ color: "var(--color-text-muted)" }}>
-                            Frequency: <strong>{sub.frequency.toLowerCase()}</strong>
-                          </p>
-                          {sub.status === "ACTIVE" && (
-                            <p style={{ color: "var(--color-text-muted)", fontSize: "12px", marginTop: "2px" }}>
-                              Next refill: <strong>{nextRefillFormatted}</strong>
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="sub-actions">
-                        {sub.status === "ACTIVE" && (
-                          <button
-                            disabled={actionLoading === sub.id}
-                            onClick={() => handleUpdateStatus(sub.id, "PAUSED")}
-                            className="btn btn-secondary btn-sm"
-                          >
-                            {actionLoading === sub.id ? "..." : "Pause"}
-                          </button>
-                        )}
-                        {sub.status === "PAUSED" && (
-                          <button
-                            disabled={actionLoading === sub.id}
-                            onClick={() => handleUpdateStatus(sub.id, "ACTIVE")}
-                            className="btn btn-primary btn-sm"
-                          >
-                            {actionLoading === sub.id ? "..." : "Resume"}
-                          </button>
-                        )}
-                        {sub.status !== "CANCELLED" && (
-                          <button
-                            disabled={actionLoading === sub.id}
-                            onClick={() => handleUpdateStatus(sub.id, "CANCELLED")}
-                            className="btn btn-danger-outline btn-sm"
-                          >
-                            Cancel
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+            {unreadNotifsCount > 0 && (
+              <button
+                disabled={notifLoading}
+                onClick={handleMarkNotificationsRead}
+                className="mark-read-link"
+              >
+                {notifLoading ? "Marking..." : `Mark ${unreadNotifsCount} as read`}
+              </button>
             )}
-          </div>
 
-          {/* Orders Section */}
-          <div className="dashboard-section">
-            <h2 className="section-title" style={{ marginBottom: "20px" }}>Recent Orders</h2>
-
-            {orders.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-state-icon">📋</div>
-                <h4>No Orders Placed</h4>
-                <p>Refill orders will be automatically generated and appear here on your refill dates.</p>
-              </div>
-            ) : (
-              <div className="order-table-wrapper">
-                <table className="order-table">
-                  <thead>
-                    <tr>
-                      <th>Order ID</th>
-                      <th>Date</th>
-                      <th>Medicine</th>
-                      <th>Total Amount</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orders.map((order) => {
-                      const dateFormatted = new Date(order.createdAt).toLocaleDateString("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      });
-                      // Extract medicine name from first item or default to subscription medicine
-                      const medicineName = order.items?.[0]?.medicine?.name || order.subscription?.medicine?.name || "Medicine";
-                      return (
-                        <tr key={order.id}>
-                          <td style={{ fontFamily: "monospace", color: "var(--color-text-muted)" }}>
-                            {order.id.substring(0, 8)}...
-                          </td>
-                          <td>{dateFormatted}</td>
-                          <td><strong>{medicineName}</strong></td>
-                          <td>₹{order.totalAmount}</td>
-                          <td>
-                            <span className={`order-status ${order.status === "SUCCESS" ? "order-status-success" : order.status === "PENDING" ? "order-status-pending" : "order-status-failed"}`}>
-                              ● {order.status}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Column: Notifications */}
-        <div>
-          <div className="dashboard-section" style={{ minHeight: "360px" }}>
-            <div className="section-title-area">
-              <h2 className="section-title">Notifications</h2>
-              {unreadNotifsCount > 0 && (
-                <button
-                  disabled={notifLoading}
-                  onClick={handleMarkNotificationsRead}
-                  className="btn btn-secondary btn-sm"
-                  style={{ padding: "6px 12px", fontSize: "12px" }}
-                >
-                  {notifLoading ? "..." : "Mark Read"}
-                </button>
+            <div className="notif-list">
+              {notifications.length === 0 && (
+                <p className="notif-empty">You're all caught up.</p>
               )}
+              {notifications.slice(0, 2).map((n) => (
+                <div className="notification-card" key={n.id}>
+                  <h4>{n.message}</h4>
+                  <p>
+                    {new Date(n.createdAt).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </p>
+                </div>
+              ))}
             </div>
+          </div>
 
-            {notifications.length === 0 ? (
-              <div className="empty-state" style={{ padding: "80px 0" }}>
-                <div className="empty-state-icon">🔔</div>
-                <p>No notifications.</p>
+          <div className="dashboard-section explore-card">
+            <h2 className="section-title">Explore Medicines</h2>
+            <p className="explore-subtitle">Based on what you take</p>
+
+            {EXPLORE_MEDICINES.map((med) => (
+              <div className="medicine-item" key={med.name}>
+                <div>
+                  💊 {med.name}
+                  <br />
+                  ⭐{med.rating}
+                </div>
+                <button className="btn btn-primary btn-sm">Add</button>
               </div>
-            ) : (
-              <div className="notif-list">
-                {notifications.map((n) => (
-                  <div key={n.id} className={`notif-item ${!n.read ? "unread" : ""}`}>
-                    {!n.read && <div className="notif-unread-dot" />}
-                    <div style={{ paddingRight: !n.read ? "12px" : "0" }}>{n.message}</div>
-                    <span className="notif-time">
-                      {new Date(n.createdAt).toLocaleDateString("en-IN", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        day: "2-digit",
-                        month: "short",
-                      })}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
+            ))}
+
+            <div style={{ marginTop: "20px" }}>
+              <Link href="/medicines">View more →</Link>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Click modal: full details for the selected day */}
+      {selectedDay && (
+        <div className="day-modal-backdrop" onClick={() => setSelectedDay(null)}>
+          <div className="day-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="day-modal-header">
+              <div>
+                <h3>{selectedDay.dateLabel}</h3>
+                <p className="day-modal-weekday">{selectedDay.weekdayLabel}</p>
+              </div>
+              <button
+                className="day-modal-close"
+                onClick={() => setSelectedDay(null)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="day-modal-body">
+              {selectedDay.refills.map((r) => (
+                <div className="day-modal-item" key={`r-${r.id}`}>
+                  <span className="day-modal-item-icon refill-icon">💊</span>
+                  <div>
+                    <p className="day-modal-item-title">{r.medicineName} refill due</p>
+                    {r.frequency && (
+                      <p className="day-modal-item-sub">Frequency: {r.frequency}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {selectedDay.deliveries.map((d) => (
+                <div className="day-modal-item" key={`d-${d.id}`}>
+                  <span className="day-modal-item-icon delivery-icon">🚚</span>
+                  <div>
+                    <p className="day-modal-item-title">Order delivery expected</p>
+                    <p className="day-modal-item-sub">
+                      Order #{d.id.slice(-4)} · ₹{d.totalAmount?.toFixed(2)} (estimated date)
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
