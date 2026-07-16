@@ -28,3 +28,7 @@ export const paymentSchema = z.object({
 export function validatePayment(data) {
   return paymentSchema.safeParse(data);
 }
+
+// Used when saving a card to the profile — same shape as paymentSchema,
+// minus cvv, since a saved card is never allowed to store the CVV.
+export const savedCardSchema = paymentSchema.omit({ cvv: true });
