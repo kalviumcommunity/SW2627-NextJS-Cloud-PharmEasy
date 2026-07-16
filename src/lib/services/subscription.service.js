@@ -73,3 +73,24 @@ export async function updateSubscriptionStatus(id, userId, status) {
     },
   });
 }
+export async function updateSubscriptionFrequency(id, userId, frequency) {
+  const sub = await prisma.subscription.findFirst({
+    where: { id, userId },
+  });
+  if (!sub) {
+    throw new Error("Subscription not found");
+  }
+  if (sub.status === "CANCELLED") {
+    throw new Error("Cannot edit a cancelled subscription");
+  }
+
+  // Recompute the next refill date from today using the new frequency,
+  // since the old date was scheduled against the old cadence.
+  const nextRefillDate = calculateNextRefillDate(frequency);
+
+  return prisma.subscription.update({
+    where: { id },
+    data: { frequency, nextRefillDate },
+    include: { medicine: true },
+  });
+}
