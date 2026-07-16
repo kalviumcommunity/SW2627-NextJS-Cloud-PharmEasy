@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { attemptPayment } from "@/lib/services/payment.service";
-import { addIntervalForFrequency } from "@/lib/utils/date";
-import { SUBSCRIPTION_STATUS, ORDER_STATUS } from "@/lib/utils/constants";
+import { createNotification } from "@/lib/services/notification.service";
+import { addIntervalForFrequency, addDays } from "@/lib/utils/date";
+import { SUBSCRIPTION_STATUS, ORDER_STATUS, NOTIFICATION_TYPE } from "@/lib/utils/constants";
 
 async function processNewlyDueSubscriptions(now) {
   const dueSubscriptions = await prisma.subscription.findMany({
@@ -111,18 +112,72 @@ async function processDueRetries(now) {
   return results;
 }
 
+/**
+ * Sends a "refill tomorrow" reminder for any ACTIVE subscription whose
+ * nextRefillDate falls within the next 24 hours, as long as a reminder
+ * hasn't already gone out for this specific cycle (tracked via
+ * lastReminderSentFor so it only fires once per nextRefillDate value).
+ */
+async function processUpcomingReminders(now) {
+  const reminderWindowEnd = addDays(now, 1);
+
+  const upcomingSubscriptions = await prisma.subscription.findMany({
+    where: {
+      status: SUBSCRIPTION_STATUS.ACTIVE,
+      nextRefillDate: { gt: now, lte: reminderWindowEnd },
+    },
+    include: { medicine: true },
+  });
+
+  const results = [];
+
+  for (const subscription of upcomingSubscriptions) {
+    const alreadySentForThisCycle =
+      subscription.lastReminderSentFor &&
+      subscription.lastReminderSentFor.getTime() === subscription.nextRefillDate.getTime();
+
+    if (alreadySentForThisCycle) {
+      continue;
+    }
+
+    try {
+      await createNotification({
+        userId: subscription.userId,
+        message: `Reminder: your ${subscription.medicine.name} refill is scheduled for tomorrow. We'll place the order automatically.`,
+        type: NOTIFICATION_TYPE.REFILL_REMINDER,
+      });
+
+      await prisma.subscription.update({
+        where: { id: subscription.id },
+        data: { lastReminderSentFor: subscription.nextRefillDate },
+      });
+
+      results.push({ subscriptionId: subscription.id, reminderSent: true });
+    } catch (err) {
+      results.push({
+        subscriptionId: subscription.id,
+        error: err.message || "Failed to send reminder",
+      });
+    }
+  }
+
+  return results;
+}
+
 export async function runScheduler() {
   const now = new Date();
 
   const newSubscriptionResults = await processNewlyDueSubscriptions(now);
   const retryResults = await processDueRetries(now);
+  const reminderResults = await processUpcomingReminders(now);
 
-  const results = [...newSubscriptionResults, ...retryResults];
+  const results = [...newSubscriptionResults, ...retryResults, ...reminderResults];
 
   return {
     ranAt: now,
     newlyDueCount: newSubscriptionResults.length,
     retriesDueCount: retryResults.length,
+    remindersSentCount: reminderResults.filter((r) => r.reminderSent).length,
     processed: results.length,
     results,
   };
