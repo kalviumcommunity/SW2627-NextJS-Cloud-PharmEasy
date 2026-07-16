@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/auth";
-import { updateSubscriptionStatus } from "@/lib/services/subscription.service";
+import { updateSubscriptionStatus, updateSubscriptionFrequency } from "@/lib/services/subscription.service";
 
 export async function PATCH(request, { params }) {
   try {
@@ -10,12 +10,23 @@ export async function PATCH(request, { params }) {
     }
 
     const { id } = params;
-    const { status } = await request.json();
-    if (!status) {
-      return NextResponse.json({ message: "Status is required" }, { status: 400 });
+    const { status, frequency } = await request.json();
+
+    if (!status && !frequency) {
+      return NextResponse.json(
+        { message: "Provide a status or frequency to update" },
+        { status: 400 }
+      );
     }
 
-    const updated = await updateSubscriptionStatus(id, userId, status);
+    let updated;
+    if (frequency) {
+      updated = await updateSubscriptionFrequency(id, userId, frequency);
+    }
+    if (status) {
+      updated = await updateSubscriptionStatus(id, userId, status);
+    }
+
     return NextResponse.json(updated);
   } catch (err) {
     return NextResponse.json(

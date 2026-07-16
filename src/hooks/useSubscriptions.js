@@ -7,14 +7,14 @@ export function useSubscriptions(initialSubscriptions = []) {
   const [loadingId, setLoadingId] = useState(null);
   const [error, setError] = useState(null);
 
-  async function updateStatus(subscriptionId, status) {
+  async function patchSubscription(subscriptionId, body) {
     setLoadingId(subscriptionId);
     setError(null);
     try {
       const res = await fetch(`/api/subscriptions/${subscriptionId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -36,5 +36,13 @@ export function useSubscriptions(initialSubscriptions = []) {
     }
   }
 
-  return { subscriptions, updateStatus, loadingId, error };
+  async function updateStatus(subscriptionId, status) {
+    return patchSubscription(subscriptionId, { status });
+  }
+
+  async function updateFrequency(subscriptionId, frequency) {
+    return patchSubscription(subscriptionId, { frequency });
+  }
+
+  return { subscriptions, updateStatus, updateFrequency, loadingId, error };
 }
