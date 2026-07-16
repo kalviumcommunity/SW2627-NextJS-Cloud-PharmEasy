@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import CardForm from "@/components/checkout/CardForm";
 import { paymentSchema } from "@/lib/validators/payment.schema";
@@ -17,7 +17,17 @@ export default function CheckoutClient({ medicine }) {
   const [order, setOrder] = useState(null);
   const [lastPaymentStatus, setLastPaymentStatus] = useState(null);
 
+  const [savedCard, setSavedCard] = useState(null);
+  const [useNewCard, setUseNewCard] = useState(false);
+
   const total = (medicine.price * quantity).toFixed(2);
+
+  useEffect(() => {
+    fetch("/api/payment-methods")
+      .then((res) => res.json())
+      .then((data) => setSavedCard(data.paymentMethod || null))
+      .catch(() => {});
+  }, []);
 
   function updateQuantity(delta) {
     setQuantity((q) => Math.min(20, Math.max(1, q + delta)));
@@ -27,7 +37,17 @@ export default function CheckoutClient({ medicine }) {
     e.preventDefault();
     setError("");
 
-    const parsedCard = paymentSchema.safeParse(card);
+    const cardToValidate =
+      savedCard && !useNewCard
+        ? {
+            cardName: savedCard.cardHolderName,
+            cardNumber: `0000000000000000`.slice(0, 12) + savedCard.last4,
+            expiry: savedCard.expiry,
+            cvv: card.cvv || "123",
+          }
+        : card;
+
+    const parsedCard = paymentSchema.safeParse(cardToValidate);
     if (!parsedCard.success) {
       setError(parsedCard.error.issues[0]?.message || "Invalid card details");
       return;
@@ -158,7 +178,26 @@ export default function CheckoutClient({ medicine }) {
 
       <form className="checkout-payment-card" onSubmit={handlePay}>
         <h3 style={{ marginBottom: "16px" }}>Payment Details</h3>
-        <CardForm card={card} onChange={setCard} error={error} disabled={loading} />
+
+        {savedCard && !useNewCard ? (
+          <div className="card-form">
+            <p style={{ fontWeight: 600, marginBottom: "4px" }}>{savedCard.cardHolderName}</p>
+            <p style={{ color: "var(--color-text-muted)", marginBottom: "12px" }}>
+              •••• •••• •••• {savedCard.last4} · Expires {savedCard.expiry}
+            </p>
+            <button
+              type="button"
+              className="login-btn"
+              onClick={() => setUseNewCard(true)}
+              style={{ padding: 0 }}
+            >
+              Use a different card
+            </button>
+          </div>
+        ) : (
+          <CardForm card={card} onChange={setCard} error={error} disabled={loading} />
+        )}
+
         <button
           type="submit"
           className="btn btn-primary"

@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import CardForm from "@/components/checkout/CardForm";
+
+const EMPTY_CARD = { cardName: "", cardNumber: "", expiry: "", cvv: "0000" };
 
 export default function ProfileClient({ user, subscriptionCount, orderCount }) {
   const router = useRouter();
@@ -11,7 +14,31 @@ export default function ProfileClient({ user, subscriptionCount, orderCount }) {
   const [savingAddress, setSavingAddress] = useState(false);
   const [addressSaved, setAddressSaved] = useState(false);
 
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [savedCard, setSavedCard] = useState(null);
+  const [loadingCard, setLoadingCard] = useState(true);
+  const [editingCard, setEditingCard] = useState(false);
+  const [card, setCard] = useState(EMPTY_CARD);
+  const [cardError, setCardError] = useState("");
+  const [savingCard, setSavingCard] = useState(false);
+  const [removingCard, setRemovingCard] = useState(false);
+
   const initial = (user.name || user.email || "?").charAt(0).toUpperCase();
+
+  useEffect(() => {
+    async function loadSavedCard() {
+      try {
+        const res = await fetch("/api/payment-methods");
+        const data = await res.json();
+        setSavedCard(data.paymentMethod || null);
+      } catch (err) {
+        // silently ignore - the section just shows "no card saved"
+      } finally {
+        setLoadingCard(false);
+      }
+    }
+    loadSavedCard();
+  }, []);
 
   async function handleSaveAddress() {
     setSavingAddress(true);
@@ -36,6 +63,46 @@ export default function ProfileClient({ user, subscriptionCount, orderCount }) {
     }
   }
 
+  async function handleSaveCard(e) {
+    e.preventDefault();
+    setCardError("");
+    setSavingCard(true);
+    try {
+      const res = await fetch("/api/payment-methods", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cardName: card.cardName,
+          cardNumber: card.cardNumber,
+          expiry: card.expiry,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to save card");
+      }
+      setSavedCard(data.paymentMethod);
+      setEditingCard(false);
+      setCard(EMPTY_CARD);
+    } catch (err) {
+      setCardError(err.message);
+    } finally {
+      setSavingCard(false);
+    }
+  }
+
+  async function handleRemoveCard() {
+    setRemovingCard(true);
+    try {
+      await fetch("/api/payment-methods", { method: "DELETE" });
+      setSavedCard(null);
+    } catch (err) {
+      alert("Could not remove card. Please try again.");
+    } finally {
+      setRemovingCard(false);
+    }
+  }
+
   async function handleLogout() {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
@@ -56,8 +123,12 @@ export default function ProfileClient({ user, subscriptionCount, orderCount }) {
       key: "payments",
       icon: "💳",
       label: "Payment methods",
-      sublabel: "Manage cards & UPI",
-      onClick: () => router.push("/profile#payments"),
+      sublabel: loadingCard
+        ? "Loading..."
+        : savedCard
+        ? `•••• ${savedCard.last4}`
+        : "No card saved",
+      onClick: () => setPaymentOpen((v) => !v),
     },
     {
       key: "subscriptions",
@@ -141,6 +212,75 @@ export default function ProfileClient({ user, subscriptionCount, orderCount }) {
                   <span className="profile-saved-tick">Saved ✓</span>
                 )}
               </div>
+            </div>
+          )}
+
+          {paymentOpen && (
+            <div className="profile-address-editor">
+              {!editingCard && savedCard && (
+                <>
+                  <p style={{ fontWeight: 600, marginBottom: "4px" }}>
+                    {savedCard.cardHolderName}
+                  </p>
+                  <p style={{ color: "var(--color-text-muted)", marginBottom: "12px" }}>
+                    •••• •••• •••• {savedCard.last4} &nbsp;·&nbsp; Expires {savedCard.expiry}
+                  </p>
+                  <div className="profile-address-actions">
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => setEditingCard(true)}
+                    >
+                      Replace card
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-danger-outline btn-sm"
+                      onClick={handleRemoveCard}
+                      disabled={removingCard}
+                    >
+                      {removingCard ? "Removing..." : "Remove"}
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {!editingCard && !savedCard && !loadingCard && (
+                <>
+                  <p style={{ color: "var(--color-text-muted)", marginBottom: "12px" }}>
+                    No card saved yet. Save one so checkout is faster next time.
+                  </p>
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm"
+                    onClick={() => setEditingCard(true)}
+                  >
+                    Add a card
+                  </button>
+                </>
+              )}
+
+              {editingCard && (
+                <form onSubmit={handleSaveCard}>
+                  <CardForm card={card} onChange={setCard} error={cardError} disabled={savingCard} />
+                  <div className="profile-address-actions">
+                    <button type="submit" className="btn btn-primary btn-sm" disabled={savingCard}>
+                      {savingCard ? "Saving..." : "Save card"}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => {
+                        setEditingCard(false);
+                        setCard(EMPTY_CARD);
+                        setCardError("");
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
           )}
 

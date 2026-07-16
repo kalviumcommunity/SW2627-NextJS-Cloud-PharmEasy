@@ -45,6 +45,17 @@ model User {
   subscriptions Subscription[]
   orders        Order[]
   notifications Notification[]
+  paymentMethod PaymentMethod?
+}
+
+model PaymentMethod {
+  id             String   @id @default(cuid())
+  user           User     @relation(fields: [userId], references: [id])
+  userId         String   @unique
+  cardHolderName String
+  last4          String
+  expiry         String
+  createdAt      DateTime @default(now())
 }
 
 model Medicine {
