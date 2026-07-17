@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { createNotification } from "@/lib/services/notification.service";
+import { sendMail } from "@/lib/mailer";
 import {
   ORDER_STATUS,
   PAYMENT_STATUS,
@@ -28,6 +29,29 @@ function backoffDelayFor(attemptsMade) {
   );
 }
 
+function buildReceiptEmail({ order, medicineName, payment }) {
+  const subject = `Your PharmEasy receipt — ${medicineName}`;
+  const text =
+    `Payment confirmed!\n\n` +
+    `Medicine: ${medicineName}\n` +
+    `Amount charged: ${formatCurrency(order.totalAmount)}\n` +
+    `Order ID: ${order.id}\n` +
+    `Date: ${new Date(payment.attemptedAt).toLocaleString()}\n\n` +
+    `Thank you for using PharmEasy.`;
+  const html = `
+    <div style="font-family: sans-serif; max-width: 480px;">
+      <h2 style="color:#10604e;">Payment confirmed</h2>
+      <p>Your refill order has been paid successfully.</p>
+      <table style="width:100%; border-collapse:collapse; margin:16px 0;">
+        <tr><td style="padding:6px 0; color:#5a6c65;">Medicine</td><td style="padding:6px 0; text-align:right;">${medicineName}</td></tr>
+        <tr><td style="padding:6px 0; color:#5a6c65;">Amount charged</td><td style="padding:6px 0; text-align:right; font-weight:700;">${formatCurrency(order.totalAmount)}</td></tr>
+        <tr><td style="padding:6px 0; color:#5a6c65;">Order ID</td><td style="padding:6px 0; text-align:right;">${order.id}</td></tr>
+      </table>
+      <p style="color:#5a6c65; font-size:13px;">Thank you for using PharmEasy.</p>
+    </div>`;
+  return { subject, text, html };
+}
+
 /**
  * Attempts payment for an order.
  *
@@ -49,12 +73,13 @@ function backoffDelayFor(attemptsMade) {
  */
 export async function attemptPayment(orderId, { forceOutcome } = {}) {
   const order = await prisma.order.findUnique({
-    where: { id: orderId },
-    include: {
-      payments: true,
-      subscription: { include: { medicine: true } },
-    },
-  });
+  where: { id: orderId },
+  include: {
+    payments: true,
+    subscription: { include: { medicine: true } },
+    user: true,
+  },
+});
 
   if (!order) {
     throw new Error("Order not found");
@@ -85,11 +110,22 @@ export async function attemptPayment(orderId, { forceOutcome } = {}) {
       data: { status: ORDER_STATUS.SUCCESS, nextPaymentAttemptAt: null },
     });
 
-    await createNotification({
+await createNotification({
       userId: order.userId,
       message: `Payment of ${formatCurrency(order.totalAmount)} for your ${medicineName} refill was successful.`,
       type: NOTIFICATION_TYPE.PAYMENT_SUCCESS,
     });
+
+    if (order.user?.email) {
+      const { subject, text, html } = buildReceiptEmail({ order: updatedOrder, medicineName, payment });
+      try {
+        await sendMail({ to: order.user.email, subject, text, html });
+      } catch (err) {
+        // Don't fail the whole payment flow just because the receipt email
+        // couldn't be sent — the in-app notification already covers this.
+        console.error("Failed to send payment receipt email:", err.message);
+      }
+    }
 
     return { order: updatedOrder, payment };
   }
