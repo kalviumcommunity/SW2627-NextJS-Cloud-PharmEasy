@@ -38,5 +38,36 @@ export function useOrders(initialOrders = []) {
     }
   }
 
-  return { orders, simulatePayment, loadingId, error };
+  async function cancelOrder(orderId) {
+    setLoadingId(orderId);
+    setError(null);
+    try {
+      const res = await fetch(`/api/orders/${orderId}/cancel`, {
+        method: "POST",
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Failed to cancel order");
+      }
+
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === orderId
+            ? { ...order, status: data.order.status, nextPaymentAttemptAt: null }
+            : order
+        )
+      );
+
+      return data;
+    } catch (err) {
+      setError(err.message || "Something went wrong. Please try again.");
+      throw err;
+    } finally {
+      setLoadingId(null);
+    }
+  }
+
+  return { orders, simulatePayment, cancelOrder, loadingId, error };
 }

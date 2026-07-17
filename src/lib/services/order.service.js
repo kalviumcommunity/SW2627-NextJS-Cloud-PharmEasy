@@ -49,3 +49,27 @@ export async function getOrders(userId) {
     orderBy: { createdAt: "desc" },
   });
 }
+
+/**
+ * Cancels a PENDING order (one still awaiting/retrying payment) that
+ * belongs to the given user. Clears nextPaymentAttemptAt so the scheduler
+ * never picks it up for a retry again.
+ */
+export async function cancelOrder(orderId, userId) {
+  const order = await prisma.order.findFirst({
+    where: { id: orderId, userId },
+  });
+
+  if (!order) {
+    throw new Error("Order not found");
+  }
+
+  if (order.status !== ORDER_STATUS.PENDING) {
+    throw new Error(`Cannot cancel an order that is already ${order.status}`);
+  }
+
+  return prisma.order.update({
+    where: { id: orderId },
+    data: { status: ORDER_STATUS.CANCELLED, nextPaymentAttemptAt: null },
+  });
+}
