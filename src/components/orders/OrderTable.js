@@ -8,10 +8,20 @@ const STATUS_CLASS = {
   [ORDER_STATUS.SUCCESS]: "order-status-success",
   [ORDER_STATUS.PENDING]: "order-status-pending",
   [ORDER_STATUS.FAILED]: "order-status-failed",
+  [ORDER_STATUS.CANCELLED]: "order-status-failed",
 };
 
 export default function OrderTable({ initialOrders }) {
-  const { orders, simulatePayment, loadingId, error } = useOrders(initialOrders);
+  const { orders, simulatePayment, cancelOrder, loadingId, error } = useOrders(initialOrders);
+
+  async function handleCancel(orderId) {
+    if (!confirm("Cancel this order? This can't be undone.")) return;
+    try {
+      await cancelOrder(orderId);
+    } catch (err) {
+      // error state is already surfaced by the hook
+    }
+  }
 
   return (
     <div>
@@ -75,7 +85,7 @@ export default function OrderTable({ initialOrders }) {
                       </td>
                       <td>
                         {isPending ? (
-                          <div style={{ display: "flex", gap: "8px" }}>
+                          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                             <button
                               disabled={isLoading}
                               onClick={() => simulatePayment(order.id, "success")}
@@ -89,6 +99,13 @@ export default function OrderTable({ initialOrders }) {
                               className="btn btn-danger-outline btn-sm"
                             >
                               {isLoading ? "..." : "Simulate Failure"}
+                            </button>
+                            <button
+                              disabled={isLoading}
+                              onClick={() => handleCancel(order.id)}
+                              className="btn btn-secondary btn-sm"
+                            >
+                              {isLoading ? "..." : "Cancel Order"}
                             </button>
                           </div>
                         ) : (

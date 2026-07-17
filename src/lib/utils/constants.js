@@ -31,12 +31,13 @@ export const ORDER_STATUS = {
   PENDING: "PENDING",
   SUCCESS: "SUCCESS",
   FAILED: "FAILED",
+  CANCELLED: "CANCELLED",
 };
-
 export const ORDER_STATUS_LABEL = {
   [ORDER_STATUS.PENDING]: "Pending",
   [ORDER_STATUS.SUCCESS]: "Delivered",
   [ORDER_STATUS.FAILED]: "Failed",
+  [ORDER_STATUS.CANCELLED]: "Cancelled",
 };
 
 export const PAYMENT_STATUS = {
@@ -60,6 +61,7 @@ export const STATUS_BADGE_COLOR = {
   [ORDER_STATUS.PENDING]: "amber",
   [ORDER_STATUS.SUCCESS]: "green",
   [ORDER_STATUS.FAILED]: "red",
+  [ORDER_STATUS.CANCELLED]: "gray",
   [PAYMENT_STATUS.SUCCESS]: "green",
   [PAYMENT_STATUS.FAILED]: "red",
   [PAYMENT_STATUS.RETRYING]: "amber",
