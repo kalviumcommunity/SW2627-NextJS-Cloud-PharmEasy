@@ -2,17 +2,8 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 const WEEKDAY_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-
-const EXPLORE_MEDICINES = [
-  { name: "CoQ10", rating: 4.6 },
-  { name: "Vitamin D3", rating: 4.8 },
-  { name: "Omega-3", rating: 4.7 },
-  { name: "Calcium", rating: 4.8 },
-  { name: "Vitamin B12", rating: 4.9 },
-];
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -34,13 +25,11 @@ export default function DashboardClient({
   initialSubscriptions,
   initialOrders,
   initialNotifications,
+  initialExploreMedicines,
 }) {
-  const router = useRouter();
-  const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
+  const [subscriptions] = useState(initialSubscriptions);
   const [orders] = useState(initialOrders);
   const [notifications, setNotifications] = useState(initialNotifications);
-
-  const [actionLoading, setActionLoading] = useState(null);
   const [notifLoading, setNotifLoading] = useState(false);
 
   const today = new Date();
@@ -48,7 +37,6 @@ export default function DashboardClient({
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selectedDay, setSelectedDay] = useState(null);
 
-  // Stats calculation
   const activeSubs = subscriptions.filter((s) => s.status === "ACTIVE");
 
   let nextRefillText = "No refills scheduled";
@@ -73,7 +61,6 @@ export default function DashboardClient({
     year: "numeric",
   });
 
-  // "This week" chip strip — built from real refill + order data
   const weekChips = useMemo(() => {
     const chips = [];
     const weekFromNow = new Date();
@@ -115,14 +102,11 @@ export default function DashboardClient({
     return chips;
   }, [activeSubs, orders]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Month calendar generation — builds full per-day detail objects
-  // (not just booleans) so the hover tooltip and click modal have real data.
   const calendarCells = useMemo(() => {
     const firstOfMonth = new Date(viewYear, viewMonth, 1);
-    const startWeekday = firstOfMonth.getDay(); // 0 = Sunday
+    const startWeekday = firstOfMonth.getDay();
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
 
-    // day-of-month -> { refills: [...], deliveries: [...] }
     const dayDetailsMap = {};
 
     activeSubs.forEach((s) => {
@@ -141,7 +125,6 @@ export default function DashboardClient({
     (orders || [])
       .filter((o) => o.status === "PENDING")
       .forEach((o) => {
-        // No real delivery-date field on Order yet — estimated as createdAt + 3 days.
         const est = new Date(o.createdAt);
         est.setDate(est.getDate() + 3);
         if (est.getFullYear() === viewYear && est.getMonth() === viewMonth) {
@@ -202,32 +185,6 @@ export default function DashboardClient({
     }
   }
 
-  // Actions
-  async function handleUpdateStatus(subId, newStatus) {
-    setActionLoading(subId);
-    try {
-      const res = await fetch(`/api/subscriptions/${subId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (res.ok) {
-        const updated = await res.json();
-        setSubscriptions((prev) =>
-          prev.map((s) => (s.id === subId ? updated : s))
-        );
-      } else {
-        alert("Failed to update subscription status");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error communication with server");
-    } finally {
-      setActionLoading(null);
-    }
-  }
-
   async function handleMarkNotificationsRead() {
     if (unreadNotifsCount === 0) return;
 
@@ -247,21 +204,8 @@ export default function DashboardClient({
     }
   }
 
-  async function handleLogout() {
-    try {
-      const res = await fetch("/api/auth/logout", { method: "POST" });
-      if (res.ok) {
-        router.push("/login");
-        router.refresh();
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
   return (
     <div>
-      {/* Header: greeting + compact stats */}
       <div className="dashboard-header-row">
         <div>
           <h1 className="dashboard-greeting">
@@ -279,16 +223,9 @@ export default function DashboardClient({
             <span className="stat-pill-label">Active subscriptions</span>
             <span className="stat-pill-value">{activeSubs.length}</span>
           </div>
-          <button
-            onClick={handleLogout}
-            className="btn btn-secondary btn-sm logout-btn-inline"
-          >
-            Log Out
-          </button>
         </div>
       </div>
 
-      {/* This week chip strip */}
       {weekChips.length > 0 && (
         <div className="week-chip-strip">
           {weekChips.map((chip) => (
@@ -300,13 +237,11 @@ export default function DashboardClient({
         </div>
       )}
 
-      {/* Two Column Grid */}
       <div className="dashboard-grid">
-        {/* Left Column: Calendar */}
         <div>
           <div className="dashboard-section calendar-card">
             <div className="calendar-card-header">
-              <h2 className="section-title">📅 {monthLabel}</h2>
+              <h2 className="section-title">{monthLabel}</h2>
 
               <div className="calendar-legend">
                 <span className="legend-item">
@@ -364,8 +299,6 @@ export default function DashboardClient({
                     {cell.hasRefill && <div className="refill-dot" />}
                     {cell.hasDelivery && <div className="delivery-dot" />}
 
-                    {/* Hover tooltip: pure CSS, no extra requests — date always shows,
-                        detail rows only render if that day actually has a refill/delivery */}
                     <div className="day-tooltip">
                       <div className="day-tooltip-date">{cell.dateLabel}</div>
                       <div className="day-tooltip-weekday">{cell.weekdayLabel}</div>
@@ -387,9 +320,41 @@ export default function DashboardClient({
               )}
             </div>
           </div>
+
+          <div className="dashboard-section" style={{ marginTop: "24px" }}>
+            <div className="section-title-area">
+              <h2 className="section-title">Your Subscriptions</h2>
+              <Link href="/subscriptions" className="view-all-link">
+                View all →
+              </Link>
+            </div>
+
+            <div className="sub-list">
+              {activeSubs.length === 0 && (
+                <p className="notif-empty">No active subscriptions yet.</p>
+              )}
+              {activeSubs.slice(0, 4).map((s) => (
+                <div className="sub-item-card" key={s.id}>
+                  <div className="sub-item-info">
+                    <div className="sub-item-icon">💊</div>
+                    <div className="sub-item-details">
+                      <h4>{s.medicine?.name || "Medicine"}</h4>
+                      <p>
+                        {s.frequency} · Next refill{" "}
+                        {new Date(s.nextRefillDate).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="badge badge-active">Active</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Right Column: Notifications + Explore Medicines */}
         <div className="right-sidebar">
           <div className="dashboard-section notifications">
             <div className="section-title-area">
@@ -431,14 +396,20 @@ export default function DashboardClient({
             <h2 className="section-title">Explore Medicines</h2>
             <p className="explore-subtitle">Based on what you take</p>
 
-            {EXPLORE_MEDICINES.map((med) => (
-              <div className="medicine-item" key={med.name}>
+            {initialExploreMedicines.length === 0 && (
+              <p className="notif-empty">You're subscribed to everything we've got.</p>
+            )}
+
+            {initialExploreMedicines.map((med) => (
+              <div className="medicine-item" key={med.id}>
                 <div>
                   💊 {med.name}
                   <br />
-                  ⭐{med.rating}
+                  ₹{med.price}
                 </div>
-                <button className="btn btn-primary btn-sm">Add</button>
+                <Link href={`/medicines/${med.id}`} className="btn btn-primary btn-sm">
+                  View
+                </Link>
               </div>
             ))}
 
@@ -449,7 +420,6 @@ export default function DashboardClient({
         </div>
       </div>
 
-      {/* Click modal: full details for the selected day */}
       {selectedDay && (
         <div className="day-modal-backdrop" onClick={() => setSelectedDay(null)}>
           <div className="day-modal" onClick={(e) => e.stopPropagation()}>

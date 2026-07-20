@@ -5,12 +5,12 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const NAV_ITEMS = [
-  { label: "Home", href: "/home", icon: "🏠" },
-  { label: "Medicines", href: "/medicines", icon: "💊" },
-  { label: "Orders", href: "/orders", icon: "🚚" },
-  { label: "Subscriptions", href: "/subscriptions", icon: "🔄" },
-  { label: "Notifications", href: "/notifications", icon: "🔔" },
-  { label: "Profile", href: "/profile", icon: "👤" },
+  { label: "Home", href: "/home", icon: "" },
+  { label: "Medicines", href: "/medicines", icon: "" },
+  { label: "Orders", href: "/orders", icon: "" },
+  { label: "Subscriptions", href: "/subscriptions", icon: "" },
+  { label: "Notifications", href: "/notifications", icon: "" },
+  { label: "Profile", href: "/profile", icon: "" },
 ];
 
 export default function AppNavbar() {

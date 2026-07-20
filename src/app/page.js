@@ -5,6 +5,7 @@ import HowItWorks from "@/components/marketing/HowItWorks";
 import WhyChooseUs from "@/components/marketing/WhyChooseUs";
 import Testimonials from "@/components/marketing/Testimonials";
 import FAQ from "@/components/marketing/FAQ";
+import Footer from "@/components/marketing/Footer";
 
 export default function HomePage() {
   return (
@@ -18,6 +19,7 @@ export default function HomePage() {
         <Testimonials />
         <FAQ />
       </main>
+      <Footer />
     </>
   );
 }
