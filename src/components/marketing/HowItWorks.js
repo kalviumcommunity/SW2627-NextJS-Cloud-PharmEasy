@@ -25,7 +25,7 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section style={{ backgroundColor: "#f9f8f4" }}>
+    <section style={{ backgroundColor: "var(--bg-main)" }}>
       <div className="container">
         <h2 className="section-title-center">How Auto Refill Works</h2>
         

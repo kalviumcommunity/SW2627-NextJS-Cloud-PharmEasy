@@ -85,7 +85,7 @@ export default function WhyChooseUs() {
   ];
 
   return (
-    <section style={{ backgroundColor: "#ffffff" }}>
+    <section style={{ backgroundColor: "var(--bg-main)" }}>
       <div className="container">
         <h2 className="why-choose-title">
           <span style={{ fontSize: "28px" }}></span> Why Choose PharmEasy
