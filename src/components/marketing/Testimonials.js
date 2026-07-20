@@ -32,7 +32,7 @@ export default function Testimonials() {
   }, [testimonials.length]);
 
   return (
-    <section className="testimonials-section" style={{ backgroundColor: "#f9f8f4" }}>
+    <section className="testimonials-section" style={{ backgroundColor: "var(--bg-main)" }}>
       <div className="container">
         <h2 className="section-title-center" style={{ marginBottom: "24px" }}>
           What Our Customers Say

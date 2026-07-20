@@ -37,7 +37,7 @@ export default function FAQ() {
   };
 
   return (
-    <section style={{ backgroundColor: "#ffffff" }}>
+    <section style={{ backgroundColor: "var(--bg-main)" }}>
       <div className="container">
         <h2 className="section-title-center">Frequently Asked Questions</h2>
         

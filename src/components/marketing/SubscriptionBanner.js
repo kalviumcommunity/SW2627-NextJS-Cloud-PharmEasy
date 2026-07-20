@@ -6,7 +6,7 @@ export default function SubscriptionBanner() {
   const router = useRouter();
 
   return (
-    <section style={{ backgroundColor: "#ffffff" }}>
+    <section style={{ backgroundColor: "var(--bg-main)" }}>
       <div className="container">
         <div className="sub-banner-card">
           {/* Left Column: Details */}
