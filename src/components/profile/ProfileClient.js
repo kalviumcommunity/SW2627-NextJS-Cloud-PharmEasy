@@ -246,101 +246,109 @@ export default function ProfileClient({ user, subscriptionCount, orderCount }) {
                 <span className="profile-row-chevron">{ICONS.chevron}</span>
               </button>
 
-              {row.key === "addresses" && addressOpen && (
-                <div className="profile-address-editor">
-                  <label className="auth-form-label" htmlFor="address">
-                    Shipping address
-                  </label>
-                  <textarea
-                    id="address"
-                    className="auth-input"
-                    rows={3}
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Add your delivery address"
-                  />
-                  <div className="profile-address-actions">
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      onClick={handleSaveAddress}
-                      disabled={savingAddress}
-                    >
-                      {savingAddress ? "Saving..." : "Save address"}
-                    </button>
-                    {addressSaved && (
-                      <span className="profile-saved-tick">Saved ✓</span>
-                    )}
+              {row.key === "addresses" && (
+                <div className={`profile-accordion${addressOpen ? " open" : ""}`}>
+                  <div className="profile-accordion-inner">
+                    <div className="profile-address-editor">
+                      <label className="auth-form-label" htmlFor="address">
+                        Shipping address
+                      </label>
+                      <textarea
+                        id="address"
+                        className="auth-input"
+                        rows={3}
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Add your delivery address"
+                      />
+                      <div className="profile-address-actions">
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          onClick={handleSaveAddress}
+                          disabled={savingAddress}
+                        >
+                          {savingAddress ? "Saving..." : "Save address"}
+                        </button>
+                        {addressSaved && (
+                          <span className="profile-saved-tick">Saved ✓</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
 
-              {row.key === "payments" && paymentOpen && (
-                <div className="profile-address-editor">
-                  {!editingCard && savedCard && (
-                    <>
-                      <p style={{ fontWeight: 600, marginBottom: "4px" }}>
-                        {savedCard.cardHolderName}
-                      </p>
-                      <p style={{ color: "var(--color-text-muted)", marginBottom: "12px" }}>
-                        •••• •••• •••• {savedCard.last4} &nbsp;·&nbsp; Expires {savedCard.expiry}
-                      </p>
-                      <div className="profile-address-actions">
-                        <button
-                          type="button"
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => setEditingCard(true)}
-                        >
-                          Replace card
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-danger-outline btn-sm"
-                          onClick={handleRemoveCard}
-                          disabled={removingCard}
-                        >
-                          {removingCard ? "Removing..." : "Remove"}
-                        </button>
-                      </div>
-                    </>
-                  )}
+              {row.key === "payments" && (
+                <div className={`profile-accordion${paymentOpen ? " open" : ""}`}>
+                  <div className="profile-accordion-inner">
+                    <div className="profile-address-editor">
+                      {!editingCard && savedCard && (
+                        <>
+                          <p style={{ fontWeight: 600, marginBottom: "4px" }}>
+                            {savedCard.cardHolderName}
+                          </p>
+                          <p style={{ color: "var(--color-text-muted)", marginBottom: "12px" }}>
+                            •••• •••• •••• {savedCard.last4} &nbsp;·&nbsp; Expires {savedCard.expiry}
+                          </p>
+                          <div className="profile-address-actions">
+                            <button
+                              type="button"
+                              className="btn btn-secondary btn-sm"
+                              onClick={() => setEditingCard(true)}
+                            >
+                              Replace card
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-danger-outline btn-sm"
+                              onClick={handleRemoveCard}
+                              disabled={removingCard}
+                            >
+                              {removingCard ? "Removing..." : "Remove"}
+                            </button>
+                          </div>
+                        </>
+                      )}
 
-                  {!editingCard && !savedCard && !loadingCard && (
-                    <>
-                      <p style={{ color: "var(--color-text-muted)", marginBottom: "12px" }}>
-                        No card saved yet. Save one so checkout is faster next time.
-                      </p>
-                      <button
-                        type="button"
-                        className="btn btn-primary btn-sm"
-                        onClick={() => setEditingCard(true)}
-                      >
-                        Add a card
-                      </button>
-                    </>
-                  )}
+                      {!editingCard && !savedCard && !loadingCard && (
+                        <>
+                          <p style={{ color: "var(--color-text-muted)", marginBottom: "12px" }}>
+                            No card saved yet. Save one so checkout is faster next time.
+                          </p>
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-sm"
+                            onClick={() => setEditingCard(true)}
+                          >
+                            Add a card
+                          </button>
+                        </>
+                      )}
 
-                  {editingCard && (
-                    <form onSubmit={handleSaveCard}>
-                      <CardForm card={card} onChange={setCard} error={cardError} disabled={savingCard} />
-                      <div className="profile-address-actions">
-                        <button type="submit" className="btn btn-primary btn-sm" disabled={savingCard}>
-                          {savingCard ? "Saving..." : "Save card"}
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => {
-                            setEditingCard(false);
-                            setCard(EMPTY_CARD);
-                            setCardError("");
-                          }}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  )}
+                      {editingCard && (
+                        <form onSubmit={handleSaveCard}>
+                          <CardForm card={card} onChange={setCard} error={cardError} disabled={savingCard} />
+                          <div className="profile-address-actions">
+                            <button type="submit" className="btn btn-primary btn-sm" disabled={savingCard}>
+                              {savingCard ? "Saving..." : "Save card"}
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-secondary btn-sm"
+                              onClick={() => {
+                                setEditingCard(false);
+                                setCard(EMPTY_CARD);
+                                setCardError("");
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </form>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

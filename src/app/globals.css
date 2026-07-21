@@ -2683,12 +2683,31 @@ p {
 }
 
 .profile-address-editor {
-  padding: 20px 24px;
+  padding: 18px 20px;
+  margin: 2px 0 10px;
   background-color: var(--bg-mint-light);
-  border-bottom: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* ---- Accordion panels (grid-rows trick = smooth height animation) ---- */
+
+.profile-accordion {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0 4px;
+}
+
+.profile-accordion.open {
+  grid-template-rows: 1fr;
+}
+
+.profile-accordion-inner {
+  overflow: hidden;
 }
 
 .profile-address-editor textarea {
