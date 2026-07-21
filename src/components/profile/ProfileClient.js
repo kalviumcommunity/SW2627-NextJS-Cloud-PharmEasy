@@ -222,12 +222,35 @@ export default function ProfileClient({ user, subscriptionCount, orderCount }) {
 
       <div className="profile-card">
         <div className="profile-summary">
+        <div className="profile-summary-left">
           <div className="profile-avatar">{initial}</div>
+
           <div className="profile-summary-info">
             <h3>{user.name}</h3>
             <p>{user.email}</p>
           </div>
         </div>
+
+        <div className="profile-summary-stats">
+          <div className="profile-summary-stat">
+            <div className="profile-summary-stat-value">
+              {subscriptionCount}
+            </div>
+            <div className="profile-summary-stat-label">
+              Subscriptions
+            </div>
+          </div>
+
+          <div className="profile-summary-stat">
+            <div className="profile-summary-stat-value">
+              {orderCount}
+            </div>
+            <div className="profile-summary-stat-label">
+              Orders
+            </div>
+          </div>
+        </div>
+      </div>
 
         <div className="profile-row-list">
           {rows.map((row) => (
