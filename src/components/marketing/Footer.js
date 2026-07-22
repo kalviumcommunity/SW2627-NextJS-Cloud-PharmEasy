@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer className="site-footer">
@@ -10,23 +12,17 @@ export default function Footer() {
         </div>
 
         <div className="footer-col">
-          <h4>Company</h4>
-          <a href="/">About Us</a>
-          <a href="/">Careers</a>
-          <a href="/">Contact</a>
+          <h4>Explore</h4>
+          <Link href="/">Home</Link>
+          <Link href="/medicines">Medicines</Link>
+          <Link href="/subscriptions">Subscriptions</Link>
         </div>
 
         <div className="footer-col">
-          <h4>Support</h4>
-          <a href="/">Help Center</a>
-          <a href="/">Track Order</a>
-          <a href="/">Returns</a>
-        </div>
-
-        <div className="footer-col">
-          <h4>Legal</h4>
-          <a href="/">Privacy Policy</a>
-          <a href="/">Terms of Service</a>
+          <h4>Account</h4>
+          <Link href="/login">Log In</Link>
+          <Link href="/register">Sign Up</Link>
+          <Link href="/orders">Track Order</Link>
         </div>
       </div>
 

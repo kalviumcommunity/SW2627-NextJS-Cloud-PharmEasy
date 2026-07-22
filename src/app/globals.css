@@ -416,7 +416,7 @@ p {
 
 .footer-top {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  grid-template-columns: 1.4fr 1fr 1fr;
   gap: 40px;
   padding: 64px 24px 40px;
 }
@@ -1550,14 +1550,6 @@ p {
   overflow-y: auto;
 }
 
-.footer {
-  padding: 24px 48px;
-  border-top: 1px solid var(--color-border-light);
-  background-color: #ffffff;
-  text-align: center;
-  color: var(--color-text-muted);
-  font-size: 14px;
-}
 
 /* --- App Topbar (search + notification bell, sits above page content) --- */
 .topbar {
