@@ -3,16 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import MedicineVisual from "@/components/medicines/MedicineVisual";
 
 const CATEGORIES = ["All", "Diabetes", "Hypertension", "Thyroid", "Cardiac", "Supplements"];
-
-const EMOJI_MAP = {
-  diabetes: "💉",
-  hypertension: "🩹",
-  thyroid: "💊",
-  cardiac: "❤️",
-  supplements: "🧃",
-};
 
 export default function MedicinesClient({
   initialMedicines,
@@ -27,7 +20,6 @@ export default function MedicinesClient({
   const [query, setQuery] = useState(initialQuery);
   const [activeCategory, setActiveCategory] = useState(initialCategory || "All");
 
-  // Sync state with search params on mount/popstate
   useEffect(() => {
     setQuery(searchParams.get("q") || "");
     setActiveCategory(searchParams.get("category") || "All");
@@ -114,30 +106,29 @@ export default function MedicinesClient({
         </div>
       ) : (
         <div className="medicine-grid">
-          {initialMedicines.map((med) => {
-            const emoji = EMOJI_MAP[med.category?.toLowerCase()] || "💊";
-            return (
-              <div key={med.id} className="medicine-card">
-                <div className="medicine-card-header">{emoji}</div>
-                <div className="medicine-card-body">
-                  <span className="badge badge-active" style={{ fontSize: "10px", marginBottom: "8px", backgroundColor: "var(--bg-mint)" }}>
-                    {med.category}
-                  </span>
-                  <h3 className="medicine-title">{med.name}</h3>
-                  <p style={{ fontSize: "13px", color: "var(--color-text-muted)", height: "38px", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", marginBottom: "12px" }}>
-                    {med.description}
-                  </p>
-                  <div className="medicine-price" style={{ marginBottom: "16px" }}>₹{med.price}</div>
-                  
-                  <Link href={`/medicines/${med.id}`} style={{ textDecoration: "none", width: "100%" }}>
-                    <button className="btn medicine-card-btn" style={{ width: "100%", justifyContent: "center" }}>
-                      View Subscription Details
-                    </button>
-                  </Link>
-                </div>
+          {initialMedicines.map((med) => (
+            <div key={med.id} className="medicine-card">
+              <div className={`medicine-card-header cat-${med.category?.toLowerCase()}`}>
+                <MedicineVisual category={med.category} name={med.name} imageUrl={med.imageUrl} />
               </div>
-            );
-          })}
+              <div className="medicine-card-body">
+                <span className="badge badge-active" style={{ fontSize: "10px", marginBottom: "8px", backgroundColor: "var(--bg-mint)" }}>
+                  {med.category}
+                </span>
+                <h3 className="medicine-title">{med.name}</h3>
+                <p style={{ fontSize: "13px", color: "var(--color-text-muted)", height: "38px", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", marginBottom: "12px" }}>
+                  {med.description}
+                </p>
+                <div className="medicine-price" style={{ marginBottom: "16px" }}>₹{med.price}</div>
+
+                <Link href={`/medicines/${med.id}`} style={{ textDecoration: "none", width: "100%" }}>
+                  <button className="btn medicine-card-btn" style={{ width: "100%", justifyContent: "center" }}>
+                    View Subscription Details
+                  </button>
+                </Link>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

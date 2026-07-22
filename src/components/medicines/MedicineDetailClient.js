@@ -6,15 +6,8 @@ import Link from "next/link";
 import FrequencySelector from "@/components/subscriptions/FrequencySelector";
 import FlowDrawer from "@/components/subscriptions/FlowDrawer";
 import DetailDrawer from "@/components/subscriptions/DetailDrawer";
+import MedicineVisual from "@/components/medicines/MedicineVisual";
 import { subscriptionSchema } from "@/lib/validators/subscription.schema";
-
-const EMOJI_MAP = {
-  diabetes: "💉",
-  hypertension: "🩹",
-  thyroid: "💊",
-  cardiac: "❤️",
-  supplements: "🧃",
-};
 
 export default function MedicineDetailClient({ medicine, isLoggedIn }) {
   const router = useRouter();
@@ -23,8 +16,6 @@ export default function MedicineDetailClient({ medicine, isLoggedIn }) {
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const emoji = EMOJI_MAP[medicine.category?.toLowerCase()] || "💊";
 
   function handleStartSubscribe(e) {
     e.preventDefault();
@@ -101,8 +92,8 @@ export default function MedicineDetailClient({ medicine, isLoggedIn }) {
       </Link>
 
       <div className="detail-grid">
-        <div className="detail-img-box">
-          {emoji}
+        <div className={`detail-img-box cat-${medicine.category?.toLowerCase()}`}>
+          <MedicineVisual category={medicine.category} name={medicine.name} imageUrl={medicine.imageUrl} />
         </div>
 
         <div className="detail-info-box">
