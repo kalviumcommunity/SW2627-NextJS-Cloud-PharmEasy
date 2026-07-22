@@ -108,7 +108,6 @@ export default function AppNavbar() {
         </Link>
 
         <button type="button" className="app-navbar-logout" onClick={handleLogout}>
-          <span aria-hidden="true">🚪</span>
           Log out
         </button>
 

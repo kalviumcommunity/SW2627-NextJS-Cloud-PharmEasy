@@ -10,15 +10,36 @@ function daysFromNow(days) {
 
 async function main() {
   const medicines = [
-    { name: "Metformin 500mg", description: "For type 2 diabetes management", price: 89, category: "Diabetes", imageUrl: null },
-    { name: "Amlodipine 5mg", description: "For blood pressure control", price: 65, category: "Hypertension", imageUrl: null },
-    { name: "Thyronorm 50mcg", description: "For thyroid hormone regulation", price: 45, category: "Thyroid", imageUrl: null },
-    { name: "Atorvastatin 10mg", description: "For cholesterol management", price: 120, category: "Cardiac", imageUrl: null },
-    { name: "Vitamin D3 60K", description: "Weekly vitamin D supplement", price: 32, category: "Supplements", imageUrl: null },
-    { name: "Calcium + Vitamin D3", description: "Bone health supplement", price: 210, category: "Supplements", imageUrl: null },
-    { name: "Losartan 50mg", description: "For blood pressure control", price: 78, category: "Hypertension", imageUrl: null },
-    { name: "Glimepiride 2mg", description: "For type 2 diabetes management", price: 95, category: "Diabetes", imageUrl: null },
-  ];
+  // --- Diabetes ---
+  { name: "Metformin 500mg", description: "For type 2 diabetes management", price: 89, category: "Diabetes", imageUrl: null },
+  { name: "Glimepiride 1mg", description: "Stimulates insulin release to help control blood sugar", price: 72, category: "Diabetes", imageUrl: null },
+  { name: "Sitagliptin 50mg", description: "DPP-4 inhibitor for improved post-meal glucose control", price: 145, category: "Diabetes", imageUrl: null },
+  { name: "Voglibose 0.3mg", description: "Slows carbohydrate absorption to reduce sugar spikes", price: 68, category: "Diabetes", imageUrl: null },
+
+  // --- Hypertension ---
+  { name: "Amlodipine 5mg", description: "For blood pressure control", price: 65, category: "Hypertension", imageUrl: null },
+  { name: "Telmisartan 40mg", description: "ARB for long-term blood pressure management", price: 92, category: "Hypertension", imageUrl: null },
+  { name: "Ramipril 2.5mg", description: "ACE inhibitor supporting heart and kidney health", price: 58, category: "Hypertension", imageUrl: null },
+  { name: "Metoprolol 25mg", description: "Beta-blocker that lowers heart rate and blood pressure", price: 74, category: "Hypertension", imageUrl: null },
+
+  // --- Thyroid ---
+  { name: "Thyronorm 50mcg", description: "For thyroid hormone regulation", price: 45, category: "Thyroid", imageUrl: null },
+  { name: "Thyronorm 100mcg", description: "Higher-dose thyroid hormone replacement", price: 52, category: "Thyroid", imageUrl: null },
+  { name: "Eltroxin 75mcg", description: "Daily therapy for underactive thyroid", price: 48, category: "Thyroid", imageUrl: null },
+
+  // --- Cardiac ---
+  { name: "Atorvastatin 10mg", description: "For cholesterol management", price: 120, category: "Cardiac", imageUrl: null },
+  { name: "Rosuvastatin 5mg", description: "Lowers LDL cholesterol to reduce cardiac risk", price: 135, category: "Cardiac", imageUrl: null },
+  { name: "Clopidogrel 75mg", description: "Antiplatelet medicine that helps prevent blood clots", price: 110, category: "Cardiac", imageUrl: null },
+  { name: "Aspirin 75mg", description: "Low-dose blood thinner for long-term heart protection", price: 28, category: "Cardiac", imageUrl: null },
+
+  // --- Supplements ---
+  { name: "Vitamin D3 60K", description: "Weekly vitamin D supplement", price: 32, category: "Supplements", imageUrl: null },
+  { name: "Calcium + Vitamin D3", description: "Bone health supplement", price: 210, category: "Supplements", imageUrl: null },
+  { name: "Omega-3 Fish Oil 1000mg", description: "Supports heart and joint health", price: 299, category: "Supplements", imageUrl: null },
+  { name: "Vitamin B12 Methylcobalamin", description: "Supports nerve function and energy levels", price: 180, category: "Supplements", imageUrl: null },
+  { name: "Daily Multivitamin", description: "Complete daily blend of essential vitamins and minerals", price: 220, category: "Supplements", imageUrl: null },
+];
 
   const createdMedicines = [];
   for (const med of medicines) {

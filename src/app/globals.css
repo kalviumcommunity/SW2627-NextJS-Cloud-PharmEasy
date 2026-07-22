@@ -549,13 +549,26 @@ p {
 
 .medicine-card-header {
   height: 180px;
-  background-color: var(--bg-mint-light);
+  background: linear-gradient(160deg, var(--bg-mint-light) 0%, var(--bg-mint) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 64px;
   transition: var(--transition-smooth);
+  overflow: hidden;
+  position: relative;
 }
+
+.medicine-card-header.cat-diabetes { background: linear-gradient(160deg, #eaf6f1 0%, #cfeee1 100%); }
+.medicine-card-header.cat-hypertension { background: linear-gradient(160deg, #fbeee3 0%, #f5d5bd 100%); }
+.medicine-card-header.cat-thyroid { background: linear-gradient(160deg, #f1ecf9 0%, #dcd0ef 100%); }
+.medicine-card-header.cat-cardiac { background: linear-gradient(160deg, #fbe9ec 0%, #f4ccd3 100%); }
+.medicine-card-header.cat-supplements { background: linear-gradient(160deg, #faf3e2 0%, #f0e0b8 100%); }
+
+.medicine-card:hover .medicine-card-header { filter: brightness(0.97); }
+.medicine-card-header img { display: block; }
+.medicine-card-header > div { transition: transform 0.25s ease; }
+.medicine-card:hover .medicine-card-header > div { transform: scale(1.08); }
 
 .medicine-card:hover .medicine-card-header {
   background-color: var(--bg-mint);
@@ -2481,16 +2494,22 @@ p {
 }
 
 .detail-img-box {
-  background-color: #ffffff;
+  background: linear-gradient(160deg, var(--bg-mint-light) 0%, var(--bg-mint) 100%);
   border: 1px solid var(--color-border-light);
   border-radius: 12px;
   height: 380px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 96px;
   box-shadow: var(--shadow-sm);
+  overflow: hidden;
 }
+
+.detail-img-box.cat-diabetes { background: linear-gradient(160deg, #eaf6f1 0%, #cfeee1 100%); }
+.detail-img-box.cat-hypertension { background: linear-gradient(160deg, #fbeee3 0%, #f5d5bd 100%); }
+.detail-img-box.cat-thyroid { background: linear-gradient(160deg, #f1ecf9 0%, #dcd0ef 100%); }
+.detail-img-box.cat-cardiac { background: linear-gradient(160deg, #fbe9ec 0%, #f4ccd3 100%); }
+.detail-img-box.cat-supplements { background: linear-gradient(160deg, #faf3e2 0%, #f0e0b8 100%); }
 
 .detail-info-box {
   display: flex;
