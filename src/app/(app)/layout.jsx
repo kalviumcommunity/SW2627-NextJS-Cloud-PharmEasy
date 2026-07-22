@@ -1,4 +1,5 @@
 import AppNavbar from "@/components/app-shell/AppNavbar";
+import Footer from "@/components/marketing/Footer";
 
 export default function AppLayout({ children }) {
   return (
@@ -6,9 +7,7 @@ export default function AppLayout({ children }) {
       <AppNavbar />
       <main className="content">{children}</main>
 
-      <footer className="footer">
-        <p>© 2026 PharmEasy. All rights reserved.</p>
-      </footer>
+      <Footer />
     </div>
   );
 }
