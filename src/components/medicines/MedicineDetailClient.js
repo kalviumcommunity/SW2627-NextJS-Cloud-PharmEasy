@@ -8,14 +8,20 @@ import FlowDrawer from "@/components/subscriptions/FlowDrawer";
 import DetailDrawer from "@/components/subscriptions/DetailDrawer";
 import MedicineVisual from "@/components/medicines/MedicineVisual";
 import { subscriptionSchema } from "@/lib/validators/subscription.schema";
+import { useCart } from "@/hooks/useCart";
 
 export default function MedicineDetailClient({ medicine, isLoggedIn }) {
   const router = useRouter();
+  const { addItem } = useCart();
+
   const [frequency, setFrequency] = useState("MONTHLY");
   const [flowOpen, setFlowOpen] = useState(false);
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const [adding, setAdding] = useState(false);
+  const [added, setAdded] = useState(false);
 
   function handleStartSubscribe(e) {
     e.preventDefault();
@@ -33,6 +39,24 @@ export default function MedicineDetailClient({ medicine, isLoggedIn }) {
       return;
     }
     router.push(`/checkout?medicineId=${medicine.id}`);
+  }
+
+  async function handleAddToCart() {
+    if (!isLoggedIn) {
+      router.push("/login");
+      return;
+    }
+    setAdding(true);
+    setError("");
+    try {
+      await addItem(medicine.id, 1);
+      setAdded(true);
+      setTimeout(() => setAdded(false), 2000);
+    } catch (err) {
+      setError("Could not add to cart. Please try again.");
+    } finally {
+      setAdding(false);
+    }
   }
 
   async function handleConfirmSubscribe() {
@@ -132,6 +156,15 @@ export default function MedicineDetailClient({ medicine, isLoggedIn }) {
 
             {isLoggedIn ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <button
+                  type="button"
+                  onClick={handleAddToCart}
+                  className="btn btn-secondary"
+                  disabled={adding}
+                  style={{ width: "100%", padding: "16px", fontSize: "16px", fontWeight: "600", cursor: "pointer", justifyContent: "center" }}
+                >
+                  {adding ? "Adding..." : added ? "Added ✓" : "Add to Cart"}
+                </button>
                 <button
                   type="button"
                   onClick={handleBuyNow}
