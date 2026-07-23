@@ -9,6 +9,17 @@ export const directOrderSchema = z.object({
     .max(20, "Quantity cannot exceed 20"),
 });
 
+export const cartOrderSchema = z.object({
+  items: z
+    .array(
+      z.object({
+        medicineId: z.string().min(1),
+        quantity: z.coerce.number().int().min(1).max(20),
+      })
+    )
+    .min(1, "Cart is empty"),
+});
+
 export function validateDirectOrder(data) {
   return directOrderSchema.safeParse(data);
 }

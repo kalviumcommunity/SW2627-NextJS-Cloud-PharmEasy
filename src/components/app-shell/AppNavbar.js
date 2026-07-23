@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useCart } from "@/hooks/useCart";
 
 const NAV_ITEMS = [
   { label: "Home", href: "/home", icon: "" },
@@ -19,6 +20,7 @@ export default function AppNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
+  const { count: cartCount } = useCart();
 
   useEffect(() => {
     let cancelled = false;
@@ -100,6 +102,13 @@ export default function AppNavbar() {
           />
         </form>
 
+        <Link href="/cart" className="app-navbar-bell" aria-label="Cart">
+          <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293A1 1 0 005.414 17H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          {cartCount > 0 && <span className="app-navbar-bell-badge">{cartCount > 9 ? "9+" : cartCount}</span>}
+        </Link>
+
         <Link href="/notifications" className="app-navbar-bell" aria-label="Notifications">
           <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -132,6 +141,10 @@ export default function AppNavbar() {
               </Link>
             );
           })}
+          <Link href="/cart" onClick={() => setMobileOpen(false)} className="app-nav-link">
+            <span aria-hidden="true">🛒</span>
+            Cart{cartCount > 0 ? ` (${cartCount})` : ""}
+          </Link>
           <form className="app-navbar-search" onSubmit={handleSearchSubmit} role="search">
             <input
               type="text"

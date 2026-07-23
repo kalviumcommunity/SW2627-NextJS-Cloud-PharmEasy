@@ -5,10 +5,12 @@ import Link from "next/link";
 import CardForm from "@/components/checkout/CardForm";
 import { paymentSchema } from "@/lib/validators/payment.schema";
 import { PAYMENT_STATUS } from "@/lib/utils/constants";
+import { useCart } from "@/hooks/useCart";
 
 const EMPTY_CARD = { cardName: "", cardNumber: "", expiry: "", cvv: "" };
 
-export default function CheckoutClient({ medicine }) {
+export default function CheckoutClient({ mode = "single", medicine = null }) {
+  const cart = useCart();
   const [quantity, setQuantity] = useState(1);
   const [card, setCard] = useState(EMPTY_CARD);
   const [step, setStep] = useState("review"); // review | result
@@ -20,7 +22,20 @@ export default function CheckoutClient({ medicine }) {
   const [savedCard, setSavedCard] = useState(null);
   const [useNewCard, setUseNewCard] = useState(false);
 
-  const total = (medicine.price * quantity).toFixed(2);
+  const isCartMode = mode === "cart";
+
+  const cartLines = isCartMode
+    ? cart.items.map((i) => ({
+        medicineId: i.medicine.id,
+        name: i.medicine.name,
+        price: i.medicine.price,
+        quantity: i.quantity,
+      }))
+    : medicine
+    ? [{ medicineId: medicine.id, name: medicine.name, price: medicine.price, quantity }]
+    : [];
+
+  const total = cartLines.reduce((sum, l) => sum + l.price * l.quantity, 0).toFixed(2);
 
   useEffect(() => {
     fetch("/api/payment-methods")
@@ -36,6 +51,11 @@ export default function CheckoutClient({ medicine }) {
   async function handlePay(e) {
     e.preventDefault();
     setError("");
+
+    if (isCartMode && cartLines.length === 0) {
+      setError("Your cart is empty.");
+      return;
+    }
 
     const cardToValidate =
       savedCard && !useNewCard
@@ -58,10 +78,14 @@ export default function CheckoutClient({ medicine }) {
       // 1. Create the order (or reuse it, on retry).
       let currentOrder = order;
       if (!currentOrder) {
+        const orderBody = isCartMode
+          ? { items: cartLines.map(({ medicineId, quantity }) => ({ medicineId, quantity })) }
+          : { medicineId: medicine.id, quantity };
+
         const orderRes = await fetch("/api/orders", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ medicineId: medicine.id, quantity }),
+          body: JSON.stringify(orderBody),
         });
         const orderData = await orderRes.json();
         if (!orderRes.ok) {
@@ -86,11 +110,40 @@ export default function CheckoutClient({ medicine }) {
       setOrder(payData.order);
       setLastPaymentStatus(payData.payment.status);
       setStep("result");
+
+      // Clear the cart only after a successful payment.
+      if (isCartMode && payData.payment.status === PAYMENT_STATUS.SUCCESS) {
+        for (const item of cart.items) {
+          await cart.removeItem(item.id);
+        }
+      }
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
+  }
+
+  if (isCartMode && cart.loading) {
+    return (
+      <div className="meds-page-container">
+        <p>Loading your cart...</p>
+      </div>
+    );
+  }
+
+  if (isCartMode && cartLines.length === 0 && step !== "result") {
+    return (
+      <div className="dashboard-section" style={{ textAlign: "center", padding: "60px 24px" }}>
+        <h1 style={{ marginBottom: "16px" }}>Your Cart is Empty</h1>
+        <p style={{ color: "var(--color-text-muted)", marginBottom: "24px" }}>
+          Add some medicines to your cart before checking out.
+        </p>
+        <Link href="/medicines" className="btn btn-primary">
+          Browse Medicines
+        </Link>
+      </div>
+    );
   }
 
   if (step === "result") {
@@ -111,7 +164,9 @@ export default function CheckoutClient({ medicine }) {
         </h2>
         <p style={{ color: "var(--color-text-muted)", marginBottom: "24px" }}>
           {success
-            ? `Your order for ${quantity} × ${medicine.name} has been placed.`
+            ? isCartMode
+              ? "Your order has been placed."
+              : `Your order for ${quantity} × ${medicine.name} has been placed.`
             : permanentlyFailed
             ? "We couldn't process this payment after multiple attempts. The order has been cancelled."
             : "The simulated payment didn't go through. You can try again."}
@@ -150,26 +205,39 @@ export default function CheckoutClient({ medicine }) {
     <div className="checkout-grid">
       <div className="checkout-summary-card">
         <h3 style={{ marginBottom: "16px" }}>Order Summary</h3>
-        <div className="drawer-summary-row">
-          <span>Medicine</span>
-          <strong>{medicine.name}</strong>
-        </div>
-        <div className="drawer-summary-row">
-          <span>Price</span>
-          <strong>₹{medicine.price}</strong>
-        </div>
-        <div className="drawer-summary-row">
-          <span>Quantity</span>
-          <div className="quantity-stepper">
-            <button type="button" onClick={() => updateQuantity(-1)} disabled={loading}>
-              −
-            </button>
-            <span>{quantity}</span>
-            <button type="button" onClick={() => updateQuantity(1)} disabled={loading}>
-              +
-            </button>
-          </div>
-        </div>
+
+        {isCartMode ? (
+          cartLines.map((line) => (
+            <div key={line.medicineId} className="drawer-summary-row">
+              <span>{line.name} × {line.quantity}</span>
+              <strong>₹{(line.price * line.quantity).toFixed(2)}</strong>
+            </div>
+          ))
+        ) : (
+          <>
+            <div className="drawer-summary-row">
+              <span>Medicine</span>
+              <strong>{medicine.name}</strong>
+            </div>
+            <div className="drawer-summary-row">
+              <span>Price</span>
+              <strong>₹{medicine.price}</strong>
+            </div>
+            <div className="drawer-summary-row">
+              <span>Quantity</span>
+              <div className="quantity-stepper">
+                <button type="button" onClick={() => updateQuantity(-1)} disabled={loading}>
+                  −
+                </button>
+                <span>{quantity}</span>
+                <button type="button" onClick={() => updateQuantity(1)} disabled={loading}>
+                  +
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
         <div className="drawer-summary-row" style={{ borderTop: "1px solid var(--color-border-light)", paddingTop: "12px", marginTop: "8px" }}>
           <span>Total</span>
           <strong style={{ fontSize: "20px", color: "var(--color-primary)" }}>₹{total}</strong>

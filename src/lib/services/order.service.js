@@ -31,6 +31,40 @@ export async function createDirectOrder({ userId, medicineId, quantity }) {
   });
 }
 
+/**
+ * Creates a PENDING order from multiple cart lines at once. Prices are
+ * looked up fresh from the DB per medicine, never trusted from the client.
+ */
+export async function createOrderFromCart({ userId, items }) {
+  const medicineIds = items.map((i) => i.medicineId);
+  const medicines = await prisma.medicine.findMany({ where: { id: { in: medicineIds } } });
+
+  const medicineMap = new Map(medicines.map((m) => [m.id, m]));
+
+  const orderItems = items.map(({ medicineId, quantity }) => {
+    const medicine = medicineMap.get(medicineId);
+    if (!medicine) throw new Error(`Medicine ${medicineId} not found`);
+    return { medicineId, quantity, price: medicine.price };
+  });
+
+  const totalAmount = Number(
+    orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0).toFixed(2)
+  );
+
+  return prisma.order.create({
+    data: {
+      userId,
+      subscriptionId: null,
+      status: ORDER_STATUS.PENDING,
+      totalAmount,
+      items: { create: orderItems },
+    },
+    include: {
+      items: { include: { medicine: true } },
+    },
+  });
+}
+
 export async function getOrders(userId) {
   return prisma.order.findMany({
     where: { userId },

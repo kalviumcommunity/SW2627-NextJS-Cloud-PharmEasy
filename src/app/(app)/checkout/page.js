@@ -10,7 +10,21 @@ export default async function CheckoutPage({ searchParams }) {
     redirect("/login");
   }
 
+  const fromCart = searchParams?.fromCart === "1";
   const medicineId = searchParams?.medicineId;
+
+  if (fromCart) {
+    return (
+      <div>
+        <div className="dashboard-header">
+          <h1>Checkout</h1>
+          <p>Review your cart and complete payment.</p>
+        </div>
+        <CheckoutClient mode="cart" />
+      </div>
+    );
+  }
+
   const medicine = medicineId ? await getMedicineById(medicineId) : null;
 
   if (!medicine) {
@@ -33,7 +47,7 @@ export default async function CheckoutPage({ searchParams }) {
         <h1>Checkout</h1>
         <p>Complete your purchase for {medicine.name}.</p>
       </div>
-      <CheckoutClient medicine={JSON.parse(JSON.stringify(medicine))} />
+      <CheckoutClient mode="single" medicine={JSON.parse(JSON.stringify(medicine))} />
     </div>
   );
 }
