@@ -202,15 +202,6 @@ export default function ProfileClient({ user, subscriptionCount, orderCount }) {
       external: true,
       onClick: () => router.push("/orders"),
     },
-    {
-      key: "help",
-      icon: ICONS.help,
-      accent: "slate",
-      label: "Help & support",
-      sublabel: "FAQs and contact",
-      external: true,
-      onClick: () => router.push("/profile#help"),
-    },
   ];
 
   return (
