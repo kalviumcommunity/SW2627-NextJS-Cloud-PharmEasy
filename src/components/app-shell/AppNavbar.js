@@ -10,7 +10,6 @@ const NAV_ITEMS = [
   { label: "Medicines", href: "/medicines", icon: "" },
   { label: "Orders", href: "/orders", icon: "" },
   { label: "Subscriptions", href: "/subscriptions", icon: "" },
-  { label: "Notifications", href: "/notifications", icon: "" },
   { label: "Profile", href: "/profile", icon: "" },
 ];
 
