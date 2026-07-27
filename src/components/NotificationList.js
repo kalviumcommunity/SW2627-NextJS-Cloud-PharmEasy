@@ -13,6 +13,7 @@ const TYPE_ICON = {
 export default function NotificationList({ initialNotifications }) {
   const [notifications, setNotifications] = useState(initialNotifications);
   const [marking, setMarking] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const [error, setError] = useState(null);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -39,6 +40,45 @@ export default function NotificationList({ initialNotifications }) {
     }
   }
 
+  async function handleDeleteNotification(id) {
+    try {
+      setError(null);
+      const res = await fetch(`/api/notifications?id=${id}`, { method: "DELETE" });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Failed to delete notification");
+      }
+
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    } catch (err) {
+      setError(err.message || "Something went wrong. Please try again.");
+    }
+  }
+
+  async function handleClearAll() {
+    if (notifications.length === 0) return;
+    if (!confirm("Are you sure you want to delete all notifications?")) return;
+
+    setClearing(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/notifications", { method: "DELETE" });
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Failed to delete notifications");
+      }
+
+      setNotifications([]);
+    } catch (err) {
+      setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setClearing(false);
+    }
+  }
+
   return (
     <div>
       <div
@@ -56,14 +96,25 @@ export default function NotificationList({ initialNotifications }) {
           <p>Stay updated on your upcoming refills and payments.</p>
         </div>
 
-        <button
-          type="button"
-          className="btn btn-secondary btn-sm"
-          onClick={handleMarkAllRead}
-          disabled={marking || unreadCount === 0}
-        >
-          {marking ? "Marking..." : `Mark all read${unreadCount ? ` (${unreadCount})` : ""}`}
-        </button>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={handleMarkAllRead}
+            disabled={marking || unreadCount === 0}
+          >
+            {marking ? "Marking..." : `Mark all read${unreadCount ? ` (${unreadCount})` : ""}`}
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            style={{ color: "#dc2626", borderColor: "rgba(220, 38, 38, 0.2)" }}
+            onClick={handleClearAll}
+            disabled={clearing || notifications.length === 0}
+          >
+            {clearing ? "Clearing..." : "Clear all"}
+          </button>
+        </div>
       </div>
 
       <div className="dashboard-section">
@@ -82,14 +133,60 @@ export default function NotificationList({ initialNotifications }) {
         ) : (
           <div className="notif-list">
             {notifications.map((n) => (
-              <div key={n.id} className={`notif-item${n.read ? "" : " unread"}`}>
-                {!n.read && <span className="notif-unread-dot" aria-hidden="true" />}
-                <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+              <div
+                key={n.id}
+                className={`notif-item${n.read ? "" : " unread"}`}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div style={{ display: "flex", gap: "10px", alignItems: "flex-start", flex: 1 }}>
                   <span aria-hidden="true">{TYPE_ICON[n.type] || "🔔"}</span>
                   <div>
                     <p style={{ fontWeight: n.read ? 400 : 600 }}>{n.message}</p>
                     <span className="notif-time">{formatDateTime(n.createdAt)}</span>
                   </div>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginLeft: "16px" }}>
+                  {!n.read && (
+                    <span
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        backgroundColor: "var(--color-primary)",
+                        borderRadius: "50%",
+                        display: "inline-block",
+                      }}
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteNotification(n.id)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "var(--color-text-muted)",
+                      cursor: "pointer",
+                      fontSize: "16px",
+                      padding: "4px 8px",
+                      borderRadius: "4px",
+                      lineHeight: 1,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = "#dc2626";
+                      e.currentTarget.style.backgroundColor = "rgba(220, 38, 38, 0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = "var(--color-text-muted)";
+                      e.currentTarget.style.backgroundColor = "transparent";
+                    }}
+                    title="Delete notification"
+                  >
+                    ✕
+                  </button>
                 </div>
               </div>
             ))}

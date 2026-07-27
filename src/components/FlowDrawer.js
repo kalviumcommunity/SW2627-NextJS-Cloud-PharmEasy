@@ -13,6 +13,20 @@ export default function FlowDrawer({ open, medicine, frequency, loading, error, 
   const [cardError, setCardError] = useState("");
   const [useCustomAddress, setUseCustomAddress] = useState(false);
   const [customAddress, setCustomAddress] = useState("");
+  const [savedCard, setSavedCard] = useState(null);
+  const [useNewCard, setUseNewCard] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      fetch("/api/payment-methods")
+        .then((res) => res.json())
+        .then((data) => {
+          setSavedCard(data.paymentMethod || null);
+          setUseNewCard(false);
+        })
+        .catch(() => {});
+    }
+  }, [open]);
 
   const [savedCard, setSavedCard] = useState(null);
   const [useNewCard, setUseNewCard] = useState(false);
@@ -33,6 +47,8 @@ export default function FlowDrawer({ open, medicine, frequency, loading, error, 
     setCardError("");
     setUseCustomAddress(false);
     setCustomAddress("");
+    setSavedCard(null);
+    setUseNewCard(false);
     onClose();
   }
 
@@ -61,7 +77,10 @@ export default function FlowDrawer({ open, medicine, frequency, loading, error, 
       return;
     }
     setCardError("");
-    onConfirm(useCustomAddress ? customAddress : null);
+    onConfirm(
+      useCustomAddress ? customAddress : null,
+      useNewCard || !savedCard ? cardToValidate : null
+    );
   }
 
   return (

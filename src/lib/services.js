@@ -262,6 +262,24 @@ export async function createNotification({ userId, message, type }) {
   });
 }
 
+export async function deleteNotification(id, userId) {
+  const notif = await prisma.notification.findFirst({
+    where: { id, userId },
+  });
+  if (!notif) {
+    throw new Error("Notification not found");
+  }
+  return prisma.notification.delete({
+    where: { id },
+  });
+}
+
+export async function deleteAllNotifications(userId) {
+  return prisma.notification.deleteMany({
+    where: { userId },
+  });
+}
+
 
 // ==========================================
 // ORDER SERVICES
