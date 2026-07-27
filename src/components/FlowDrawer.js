@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FREQUENCY_LABEL } from "@/lib/utils";
 import CardForm from "@/components/CardForm";
 import { paymentSchema } from "@/lib/schemas";
@@ -13,6 +13,20 @@ export default function FlowDrawer({ open, medicine, frequency, loading, error, 
   const [cardError, setCardError] = useState("");
   const [useCustomAddress, setUseCustomAddress] = useState(false);
   const [customAddress, setCustomAddress] = useState("");
+  const [savedCard, setSavedCard] = useState(null);
+  const [useNewCard, setUseNewCard] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      fetch("/api/payment-methods")
+        .then((res) => res.json())
+        .then((data) => {
+          setSavedCard(data.paymentMethod || null);
+          setUseNewCard(false);
+        })
+        .catch(() => {});
+    }
+  }, [open]);
 
   if (!open) return null;
 
@@ -22,6 +36,8 @@ export default function FlowDrawer({ open, medicine, frequency, loading, error, 
     setCardError("");
     setUseCustomAddress(false);
     setCustomAddress("");
+    setSavedCard(null);
+    setUseNewCard(false);
     onClose();
   }
 
@@ -30,7 +46,17 @@ export default function FlowDrawer({ open, medicine, frequency, loading, error, 
   }
 
   function handleConfirmWithCard() {
-    const parsed = paymentSchema.safeParse(card);
+    const cardToValidate =
+      savedCard && !useNewCard
+        ? {
+            cardName: savedCard.cardHolderName,
+            cardNumber: `0000000000000000`.slice(0, 12) + savedCard.last4,
+            expiry: savedCard.expiry,
+            cvv: card.cvv || "123",
+          }
+        : card;
+
+    const parsed = paymentSchema.safeParse(cardToValidate);
     if (!parsed.success) {
       setCardError(parsed.error.issues[0]?.message || "Invalid card details");
       return;
@@ -40,7 +66,10 @@ export default function FlowDrawer({ open, medicine, frequency, loading, error, 
       return;
     }
     setCardError("");
-    onConfirm(useCustomAddress ? customAddress : null);
+    onConfirm(
+      useCustomAddress ? customAddress : null,
+      useNewCard || !savedCard ? cardToValidate : null
+    );
   }
 
   return (
@@ -124,7 +153,54 @@ export default function FlowDrawer({ open, medicine, frequency, loading, error, 
               <p style={{ color: "var(--color-text-muted)", marginBottom: "16px" }}>
                 Add a payment method to charge automatically on each refill date.
               </p>
-              <CardForm card={card} onChange={setCard} error={cardError || error} disabled={loading} />
+              
+              {savedCard && !useNewCard ? (
+                <div className="card-form" style={{ padding: "16px", border: "1px solid var(--color-border-light)", borderRadius: "8px", backgroundColor: "var(--bg-main)", marginBottom: "16px" }}>
+                  <p style={{ fontWeight: 600, marginBottom: "4px" }}>{savedCard.cardHolderName}</p>
+                  <p style={{ color: "var(--color-text-muted)", marginBottom: "12px", fontSize: "14px" }}>
+                    •••• •••• •••• {savedCard.last4} · Expires {savedCard.expiry}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setUseNewCard(true)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "var(--color-primary)",
+                      cursor: "pointer",
+                      padding: 0,
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      textDecoration: "underline"
+                    }}
+                  >
+                    Use a different card
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <CardForm card={card} onChange={setCard} error={cardError || error} disabled={loading} />
+                  {savedCard && (
+                    <button
+                      type="button"
+                      onClick={() => setUseNewCard(false)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "var(--color-primary)",
+                        cursor: "pointer",
+                        padding: 0,
+                        marginTop: "12px",
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        textDecoration: "underline"
+                      }}
+                    >
+                      Use my saved card
+                    </button>
+                  )}
+                </>
+              )}
             </>
           )}
         </div>

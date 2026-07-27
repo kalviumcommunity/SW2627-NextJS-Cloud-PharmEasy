@@ -59,7 +59,7 @@ export default function MedicineDetailClient({ medicine, isLoggedIn, userAddress
     }
   }
 
-  async function handleConfirmSubscribe(customAddress = null) {
+  async function handleConfirmSubscribe(customAddress = null, newCard = null) {
     const parsed = subscriptionSchema.safeParse({
       medicineId: medicine.id,
       frequency,
@@ -82,6 +82,22 @@ export default function MedicineDetailClient({ medicine, isLoggedIn, userAddress
         });
         if (!addressRes.ok) {
           throw new Error("Could not update shipping address");
+        }
+      }
+
+      if (newCard) {
+        const cardRes = await fetch("/api/payment-methods", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            cardName: newCard.cardName,
+            cardNumber: newCard.cardNumber,
+            expiry: newCard.expiry,
+          }),
+        });
+        if (!cardRes.ok) {
+          const cardData = await cardRes.json();
+          throw new Error(cardData.message || "Failed to save card details");
         }
       }
 
