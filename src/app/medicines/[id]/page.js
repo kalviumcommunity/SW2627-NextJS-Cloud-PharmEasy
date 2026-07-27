@@ -3,11 +3,25 @@ import { getMedicineById } from "@/lib/services";
 import Navbar from "@/components/Navbar";
 import AppLayout from "@/app/(app)/layout";
 import MedicineDetailClient from "@/components/MedicineDetailClient";
+import { prisma } from "@/lib/prisma";
+import { getUserIdFromRequest } from "@/lib/auth";
 
 export default async function MedicineDetailPage({ params }) {
   const cookieStore = cookies();
   const token = cookieStore.get("token")?.value;
   const isLoggedIn = !!token;
+
+  let userAddress = "";
+  if (isLoggedIn) {
+    const userId = getUserIdFromRequest();
+    if (userId) {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { address: true },
+      });
+      userAddress = user?.address || "";
+    }
+  }
 
   const { id } = params;
   const medicine = await getMedicineById(id);
@@ -37,7 +51,7 @@ export default async function MedicineDetailPage({ params }) {
     );
   }
 
-  const content = <MedicineDetailClient medicine={medicine} isLoggedIn={isLoggedIn} />;
+  const content = <MedicineDetailClient medicine={medicine} isLoggedIn={isLoggedIn} userAddress={userAddress} />;
 
   if (isLoggedIn) {
     return <AppLayout>{content}</AppLayout>;
