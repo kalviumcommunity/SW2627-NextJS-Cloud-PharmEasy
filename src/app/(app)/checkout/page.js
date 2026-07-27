@@ -3,12 +3,19 @@ import Link from "next/link";
 import { getUserIdFromRequest } from "@/lib/auth";
 import { getMedicineById } from "@/lib/services";
 import CheckoutClient from "@/components/CheckoutClient";
+import { prisma } from "@/lib/prisma";
 
 export default async function CheckoutPage({ searchParams }) {
   const userId = getUserIdFromRequest();
   if (!userId) {
     redirect("/login");
   }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { address: true },
+  });
+  const shippingAddress = user?.address || "";
 
   const fromCart = searchParams?.fromCart === "1";
   const medicineId = searchParams?.medicineId;
@@ -20,7 +27,7 @@ export default async function CheckoutPage({ searchParams }) {
           <h1>Checkout</h1>
           <p>Review your cart and complete payment.</p>
         </div>
-        <CheckoutClient mode="cart" />
+        <CheckoutClient mode="cart" shippingAddress={shippingAddress} />
       </div>
     );
   }
@@ -47,7 +54,7 @@ export default async function CheckoutPage({ searchParams }) {
         <h1>Checkout</h1>
         <p>Complete your purchase for {medicine.name}.</p>
       </div>
-      <CheckoutClient mode="single" medicine={JSON.parse(JSON.stringify(medicine))} />
+      <CheckoutClient mode="single" medicine={JSON.parse(JSON.stringify(medicine))} shippingAddress={shippingAddress} />
     </div>
   );
 }

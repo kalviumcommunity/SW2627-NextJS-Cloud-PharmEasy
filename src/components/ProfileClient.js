@@ -60,6 +60,7 @@ export default function ProfileClient({ user, subscriptionCount, orderCount }) {
   const router = useRouter();
 
   const [address, setAddress] = useState(user.address || "");
+  const [savedAddress, setSavedAddress] = useState(user.address || "");
   const [addressOpen, setAddressOpen] = useState(false);
   const [savingAddress, setSavingAddress] = useState(false);
   const [addressSaved, setAddressSaved] = useState(false);
@@ -100,6 +101,7 @@ export default function ProfileClient({ user, subscriptionCount, orderCount }) {
         body: JSON.stringify({ address }),
       });
       if (res.ok) {
+        setSavedAddress(address);
         setAddressSaved(true);
         setTimeout(() => setAddressSaved(false), 2000);
       } else {
@@ -167,7 +169,7 @@ export default function ProfileClient({ user, subscriptionCount, orderCount }) {
       icon: ICONS.pin,
       accent: "mint",
       label: "Saved addresses",
-      sublabel: user.address ? "1 address on file" : "No address on file",
+      sublabel: savedAddress ? "1 address on file" : "No address on file",
       expanded: addressOpen,
       onClick: () => setAddressOpen((v) => !v),
     },
