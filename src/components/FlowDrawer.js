@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FREQUENCY_LABEL } from "@/lib/utils";
 import CardForm from "@/components/CardForm";
 import { paymentSchema } from "@/lib/schemas";
@@ -26,6 +26,17 @@ export default function FlowDrawer({ open, medicine, frequency, loading, error, 
         })
         .catch(() => {});
     }
+  }, [open]);
+
+  const [savedCard, setSavedCard] = useState(null);
+  const [useNewCard, setUseNewCard] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    fetch("/api/payment-methods")
+      .then((res) => res.json())
+      .then((data) => setSavedCard(data.paymentMethod || null))
+      .catch(() => {});
   }, [open]);
 
   if (!open) return null;
@@ -151,55 +162,29 @@ export default function FlowDrawer({ open, medicine, frequency, loading, error, 
           ) : (
             <>
               <p style={{ color: "var(--color-text-muted)", marginBottom: "16px" }}>
-                Add a payment method to charge automatically on each refill date.
+                This card will be charged automatically on each refill date.
               </p>
-              
+
               {savedCard && !useNewCard ? (
-                <div className="card-form" style={{ padding: "16px", border: "1px solid var(--color-border-light)", borderRadius: "8px", backgroundColor: "var(--bg-main)", marginBottom: "16px" }}>
+                <div className="card-form">
                   <p style={{ fontWeight: 600, marginBottom: "4px" }}>{savedCard.cardHolderName}</p>
-                  <p style={{ color: "var(--color-text-muted)", marginBottom: "12px", fontSize: "14px" }}>
+                  <p style={{ color: "var(--color-text-muted)", marginBottom: "12px" }}>
                     •••• •••• •••• {savedCard.last4} · Expires {savedCard.expiry}
                   </p>
+                  {(cardError || error) && (
+                    <div className="auth-error-msg">{cardError || error}</div>
+                  )}
                   <button
                     type="button"
+                    className="login-btn"
                     onClick={() => setUseNewCard(true)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      color: "var(--color-primary)",
-                      cursor: "pointer",
-                      padding: 0,
-                      fontSize: "14px",
-                      fontWeight: "600",
-                      textDecoration: "underline"
-                    }}
+                    style={{ padding: 0 }}
                   >
                     Use a different card
                   </button>
                 </div>
               ) : (
-                <>
-                  <CardForm card={card} onChange={setCard} error={cardError || error} disabled={loading} />
-                  {savedCard && (
-                    <button
-                      type="button"
-                      onClick={() => setUseNewCard(false)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "var(--color-primary)",
-                        cursor: "pointer",
-                        padding: 0,
-                        marginTop: "12px",
-                        fontSize: "14px",
-                        fontWeight: "600",
-                        textDecoration: "underline"
-                      }}
-                    >
-                      Use my saved card
-                    </button>
-                  )}
-                </>
+                <CardForm card={card} onChange={setCard} error={cardError || error} disabled={loading} />
               )}
             </>
           )}
