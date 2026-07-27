@@ -10,7 +10,7 @@ import MedicineVisual from "@/components/MedicineVisual";
 import { subscriptionSchema } from "@/lib/schemas";
 import { useCart } from "@/hooks/useCart";
 
-export default function MedicineDetailClient({ medicine, isLoggedIn }) {
+export default function MedicineDetailClient({ medicine, isLoggedIn, userAddress = "" }) {
   const router = useRouter();
   const { addItem } = useCart();
 
@@ -59,7 +59,7 @@ export default function MedicineDetailClient({ medicine, isLoggedIn }) {
     }
   }
 
-  async function handleConfirmSubscribe() {
+  async function handleConfirmSubscribe(customAddress = null) {
     const parsed = subscriptionSchema.safeParse({
       medicineId: medicine.id,
       frequency,
@@ -74,6 +74,17 @@ export default function MedicineDetailClient({ medicine, isLoggedIn }) {
     setError("");
 
     try {
+      if (customAddress) {
+        const addressRes = await fetch("/api/auth/profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address: customAddress }),
+        });
+        if (!addressRes.ok) {
+          throw new Error("Could not update shipping address");
+        }
+      }
+
       const res = await fetch("/api/subscriptions", {
         method: "POST",
         headers: {
@@ -94,7 +105,7 @@ export default function MedicineDetailClient({ medicine, isLoggedIn }) {
       setFlowOpen(false);
       setSubscription(data);
     } catch (err) {
-      setError("An error occurred. Please try again.");
+      setError(err.message || "An error occurred. Please try again.");
       setLoading(false);
     }
   }
@@ -203,6 +214,7 @@ export default function MedicineDetailClient({ medicine, isLoggedIn }) {
         frequency={frequency}
         loading={loading}
         error={error}
+        userAddress={userAddress}
         onConfirm={handleConfirmSubscribe}
         onClose={handleCloseFlow}
       />

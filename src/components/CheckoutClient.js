@@ -9,7 +9,7 @@ import { useCart } from "@/hooks/useCart";
 
 const EMPTY_CARD = { cardName: "", cardNumber: "", expiry: "", cvv: "" };
 
-export default function CheckoutClient({ mode = "single", medicine = null }) {
+export default function CheckoutClient({ mode = "single", medicine = null, shippingAddress = "" }) {
   const cart = useCart();
   const [quantity, setQuantity] = useState(1);
   const [card, setCard] = useState(EMPTY_CARD);
@@ -21,6 +21,8 @@ export default function CheckoutClient({ mode = "single", medicine = null }) {
 
   const [savedCard, setSavedCard] = useState(null);
   const [useNewCard, setUseNewCard] = useState(false);
+  const [useCustomAddress, setUseCustomAddress] = useState(false);
+  const [customAddress, setCustomAddress] = useState("");
 
   const isCartMode = mode === "cart";
 
@@ -73,8 +75,23 @@ export default function CheckoutClient({ mode = "single", medicine = null }) {
       return;
     }
 
+    if (useCustomAddress && !customAddress.trim()) {
+      setError("Please enter a shipping address.");
+      return;
+    }
+
     setLoading(true);
     try {
+      if (useCustomAddress) {
+        const addressRes = await fetch("/api/auth/profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address: customAddress }),
+        });
+        if (!addressRes.ok) {
+          throw new Error("Could not update shipping address");
+        }
+      }
       // 1. Create the order (or reuse it, on retry).
       let currentOrder = order;
       if (!currentOrder) {
@@ -241,6 +258,44 @@ export default function CheckoutClient({ mode = "single", medicine = null }) {
         <div className="drawer-summary-row" style={{ borderTop: "1px solid var(--color-border-light)", paddingTop: "12px", marginTop: "8px" }}>
           <span>Total</span>
           <strong style={{ fontSize: "20px", color: "var(--color-primary)" }}>₹{total}</strong>
+        </div>
+
+        <div className="checkout-shipping-info" style={{ marginTop: "24px", paddingTop: "16px", borderTop: "1px dashed var(--color-border-light)" }}>
+          <h4 style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px", fontSize: "14px", fontWeight: "600" }}>
+            📍 Shipping Address
+          </h4>
+          {!useCustomAddress ? (
+            <p style={{ fontSize: "13px", color: "var(--color-text-muted)", lineHeight: "1.4", marginBottom: "8px" }}>
+              {shippingAddress || "No address on file. Please add an address in your profile."}
+            </p>
+          ) : (
+            <div style={{ marginBottom: "8px" }}>
+              <textarea
+                className="auth-input"
+                style={{ width: "100%", fontSize: "13px", padding: "8px", borderRadius: "6px", border: "1px solid var(--color-border-light)", resize: "none" }}
+                rows={2}
+                value={customAddress}
+                onChange={(e) => setCustomAddress(e.target.value)}
+                placeholder="Enter custom shipping address for this order"
+              />
+            </div>
+          )}
+
+          <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "var(--color-primary)", cursor: "pointer", userSelect: "none", marginBottom: "8px" }}>
+            <input
+              type="checkbox"
+              checked={useCustomAddress}
+              onChange={(e) => setUseCustomAddress(e.target.checked)}
+              style={{ cursor: "pointer" }}
+            />
+            Deliver to another address
+          </label>
+          
+          {!useCustomAddress && (
+            <Link href="/profile" style={{ fontSize: "12px", color: "var(--color-primary)", textDecoration: "none", fontWeight: "500" }}>
+              Edit address in profile
+            </Link>
+          )}
         </div>
       </div>
 

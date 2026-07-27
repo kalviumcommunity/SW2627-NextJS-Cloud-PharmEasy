@@ -25,7 +25,14 @@ export default async function ProfilePage() {
   }
 
   const [subscriptionCount, orderCount] = await Promise.all([
-    prisma.subscription.count({ where: { userId } }),
+    prisma.subscription.count({
+      where: {
+        userId,
+        status: {
+          not: "CANCELLED",
+        },
+      },
+    }),
     prisma.order.count({ where: { userId } }),
   ]);
 
