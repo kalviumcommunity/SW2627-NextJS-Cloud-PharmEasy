@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getUserIdFromRequest } from "@/lib/auth";
-import CartClient from "@/components/cart/CartClient";
+import CartClient from "@/components/CartClient";
 
 export default async function CartPage() {
   const userId = getUserIdFromRequest();

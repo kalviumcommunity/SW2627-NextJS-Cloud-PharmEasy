@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getUserIdFromRequest } from "@/lib/auth";
-import { getOrders } from "@/lib/services/order.service";
-import OrderTable from "@/components/orders/OrderTable";
+import { getOrders } from "@/lib/services";
+import OrderTable from "@/components/OrderTable";
 
 export default async function OrdersPage() {
   const userId = getUserIdFromRequest();

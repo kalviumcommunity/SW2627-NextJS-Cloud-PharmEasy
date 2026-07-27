@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getUserIdFromRequest } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import ProfileClient from "@/components/profile/ProfileClient";
+import ProfileClient from "@/components/ProfileClient";
 
 export default async function ProfilePage() {
   const userId = getUserIdFromRequest();

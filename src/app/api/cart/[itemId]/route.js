@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/auth";
-import { updateCartItemSchema } from "@/lib/validators/cart.schema";
-import { updateCartItem, removeCartItem } from "@/lib/services/cart.service";
+import { updateCartItemSchema } from "@/lib/schemas";
+import { updateCartItem, removeCartItem } from "@/lib/services";
 
 export async function PATCH(req, { params }) {
   const userId = getUserIdFromRequest();

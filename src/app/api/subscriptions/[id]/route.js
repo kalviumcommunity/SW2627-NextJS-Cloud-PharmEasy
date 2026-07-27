@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/auth";
-import { updateSubscriptionStatus, updateSubscriptionFrequency } from "@/lib/services/subscription.service";
+import { updateSubscriptionStatus, updateSubscriptionFrequency } from "@/lib/services";
 
 export async function PATCH(request, { params }) {
   try {

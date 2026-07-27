@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { runScheduler } from "@/lib/services/scheduler.service";
-import { SCHEDULER_AUTH_HEADER } from "@/lib/utils/constants";
+import { runScheduler } from "@/lib/services";
+import { SCHEDULER_AUTH_HEADER } from "@/lib/utils";
 
 /**
  * Trigger endpoint for the auto-refill scheduler.

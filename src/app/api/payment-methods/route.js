@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { savedCardSchema } from "@/lib/validators/payment.schema";
+import { savedCardSchema } from "@/lib/schemas";
 
 export async function GET() {
   const userId = getUserIdFromRequest();

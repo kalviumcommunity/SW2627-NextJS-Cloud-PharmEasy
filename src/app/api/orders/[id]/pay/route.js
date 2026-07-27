@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { attemptPayment } from "@/lib/services/payment.service";
-import { paymentSchema } from "@/lib/validators/payment.schema";
+import { attemptPayment } from "@/lib/services";
+import { paymentSchema } from "@/lib/schemas";
 
 /**
  * Checkout "Pay Now" endpoint. Unlike /api/orders/[id]/attempt-payment

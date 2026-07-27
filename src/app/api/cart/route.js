@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/auth";
-import { addToCartSchema } from "@/lib/validators/cart.schema";
-import { getCart, addToCart } from "@/lib/services/cart.service";
+import { addToCartSchema } from "@/lib/schemas";
+import { getCart, addToCart } from "@/lib/services";
 
 export async function GET(req) {
   const userId = getUserIdFromRequest();
