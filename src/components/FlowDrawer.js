@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FREQUENCY_LABEL } from "@/lib/utils";
 import CardForm from "@/components/CardForm";
 import { paymentSchema } from "@/lib/schemas";
@@ -13,6 +13,17 @@ export default function FlowDrawer({ open, medicine, frequency, loading, error, 
   const [cardError, setCardError] = useState("");
   const [useCustomAddress, setUseCustomAddress] = useState(false);
   const [customAddress, setCustomAddress] = useState("");
+
+  const [savedCard, setSavedCard] = useState(null);
+  const [useNewCard, setUseNewCard] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    fetch("/api/payment-methods")
+      .then((res) => res.json())
+      .then((data) => setSavedCard(data.paymentMethod || null))
+      .catch(() => {});
+  }, [open]);
 
   if (!open) return null;
 
@@ -30,7 +41,17 @@ export default function FlowDrawer({ open, medicine, frequency, loading, error, 
   }
 
   function handleConfirmWithCard() {
-    const parsed = paymentSchema.safeParse(card);
+    const cardToValidate =
+      savedCard && !useNewCard
+        ? {
+            cardName: savedCard.cardHolderName,
+            cardNumber: `0000000000000000`.slice(0, 12) + savedCard.last4,
+            expiry: savedCard.expiry,
+            cvv: card.cvv || "123",
+          }
+        : card;
+
+    const parsed = paymentSchema.safeParse(cardToValidate);
     if (!parsed.success) {
       setCardError(parsed.error.issues[0]?.message || "Invalid card details");
       return;
@@ -122,9 +143,30 @@ export default function FlowDrawer({ open, medicine, frequency, loading, error, 
           ) : (
             <>
               <p style={{ color: "var(--color-text-muted)", marginBottom: "16px" }}>
-                Add a payment method to charge automatically on each refill date.
+                This card will be charged automatically on each refill date.
               </p>
-              <CardForm card={card} onChange={setCard} error={cardError || error} disabled={loading} />
+
+              {savedCard && !useNewCard ? (
+                <div className="card-form">
+                  <p style={{ fontWeight: 600, marginBottom: "4px" }}>{savedCard.cardHolderName}</p>
+                  <p style={{ color: "var(--color-text-muted)", marginBottom: "12px" }}>
+                    •••• •••• •••• {savedCard.last4} · Expires {savedCard.expiry}
+                  </p>
+                  {(cardError || error) && (
+                    <div className="auth-error-msg">{cardError || error}</div>
+                  )}
+                  <button
+                    type="button"
+                    className="login-btn"
+                    onClick={() => setUseNewCard(true)}
+                    style={{ padding: 0 }}
+                  >
+                    Use a different card
+                  </button>
+                </div>
+              ) : (
+                <CardForm card={card} onChange={setCard} error={cardError || error} disabled={loading} />
+              )}
             </>
           )}
         </div>
