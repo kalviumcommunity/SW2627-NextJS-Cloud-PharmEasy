@@ -1,10 +1,7 @@
 import { getUserIdFromRequest } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getSubscriptions } from "@/lib/services/subscription.service";
-import { getOrders } from "@/lib/services/order.service";
-import { getNotifications } from "@/lib/services/notification.service";
-import { getMedicines } from "@/lib/services/medicine.service"; // add this
-import DashboardClient from "@/components/home/DashboardClient";
+import { getSubscriptions, getOrders, getNotifications, getMedicines } from "@/lib/services";
+import DashboardClient from "@/components/DashboardClient";
 import { redirect } from "next/navigation";
 
 export default async function HomePage() {

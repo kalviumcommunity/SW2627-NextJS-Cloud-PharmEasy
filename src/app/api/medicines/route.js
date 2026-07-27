@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getMedicines } from "@/lib/services/medicine.service";
-import { validateMedicineQuery } from "@/lib/validators/medicine.schema";
+import { getMedicines } from "@/lib/services";
+import { validateMedicineQuery } from "@/lib/schemas";
 
 export async function GET(request) {
   try {

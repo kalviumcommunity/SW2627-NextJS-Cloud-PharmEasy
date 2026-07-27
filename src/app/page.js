@@ -1,11 +1,11 @@
-import Navbar from "@/components/marketing/Navbar";
-import Hero from "@/components/marketing/Hero";
-import SubscriptionBanner from "@/components/marketing/SubscriptionBanner";
-import HowItWorks from "@/components/marketing/HowItWorks";
-import WhyChooseUs from "@/components/marketing/WhyChooseUs";
-import Testimonials from "@/components/marketing/Testimonials";
-import FAQ from "@/components/marketing/FAQ";
-import Footer from "@/components/marketing/Footer";
+import Navbar from "@/components/Navbar";
+import Hero from "@/components/Hero";
+import SubscriptionBanner from "@/components/SubscriptionBanner";
+import HowItWorks from "@/components/HowItWorks";
+import WhyChooseUs from "@/components/WhyChooseUs";
+import Testimonials from "@/components/Testimonials";
+import FAQ from "@/components/FAQ";
+import Footer from "@/components/Footer";
 
 export default function HomePage() {
   return (

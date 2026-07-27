@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { attemptPayment } from "@/lib/services/payment.service";
-import { PAYMENT_STATUS } from "@/lib/utils/constants";
+import { attemptPayment } from "@/lib/services";
+import { PAYMENT_STATUS } from "@/lib/utils";
 
 /**
  * Manual demo control: "Simulate Success" / "Simulate Failure" buttons call

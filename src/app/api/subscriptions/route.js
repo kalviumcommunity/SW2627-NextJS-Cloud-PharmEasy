@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/auth";
-import { getSubscriptions, createSubscription } from "@/lib/services/subscription.service";
-import { subscriptionSchema } from "@/lib/validators/subscription.schema";
+import { getSubscriptions, createSubscription } from "@/lib/services";
+import { subscriptionSchema } from "@/lib/schemas";
 
 export async function GET(request) {
   try {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/auth";
-import { cancelOrder } from "@/lib/services/order.service";
+import { cancelOrder } from "@/lib/services";
 
 export async function POST(request, { params }) {
   try {

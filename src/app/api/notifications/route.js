@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/auth";
-import { getNotifications, markAllAsRead } from "@/lib/services/notification.service";
+import { getNotifications, markAllAsRead } from "@/lib/services";
 
 export async function GET(request) {
   try {

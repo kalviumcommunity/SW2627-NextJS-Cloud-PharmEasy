@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getUserIdFromRequest } from "@/lib/auth";
-import { getMedicineById } from "@/lib/services/medicine.service";
-import CheckoutClient from "@/components/checkout/CheckoutClient";
+import { getMedicineById } from "@/lib/services";
+import CheckoutClient from "@/components/CheckoutClient";
 
 export default async function CheckoutPage({ searchParams }) {
   const userId = getUserIdFromRequest();

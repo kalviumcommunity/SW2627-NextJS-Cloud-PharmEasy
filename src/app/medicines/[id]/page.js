@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
-import { getMedicineById } from "@/lib/services/medicine.service";
-import Navbar from "@/components/marketing/Navbar";
+import { getMedicineById } from "@/lib/services";
+import Navbar from "@/components/Navbar";
 import AppLayout from "@/app/(app)/layout";
-import MedicineDetailClient from "@/components/medicines/MedicineDetailClient";
+import MedicineDetailClient from "@/components/MedicineDetailClient";
 
 export default async function MedicineDetailPage({ params }) {
   const cookieStore = cookies();
