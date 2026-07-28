@@ -376,7 +376,7 @@ export default function DashboardClient({
 
             <div className="notif-list">
               {notifications.length === 0 && (
-                <p className="notif-empty">You're all caught up.</p>
+                <p className="notif-empty">You&apos;re all caught up.</p>
               )}
               {notifications.slice(0, 2).map((n) => (
                 <div className="notification-card" key={n.id}>
@@ -397,7 +397,7 @@ export default function DashboardClient({
             <p className="explore-subtitle">Based on what you take</p>
 
             {initialExploreMedicines.length === 0 && (
-              <p className="notif-empty">You're subscribed to everything we've got.</p>
+              <p className="notif-empty">You&apos;re subscribed to everything we&apos;ve got.</p>
             )}
 
             {initialExploreMedicines.map((med) => (

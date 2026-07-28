@@ -47,7 +47,7 @@ export default function Testimonials() {
             
             {/* Testimonial Quote */}
             <blockquote className="testimonial-quote">
-              "{testimonials[activeIndex].quote}"
+              &quot;{testimonials[activeIndex].quote}&quot;
             </blockquote>
             
             {/* Author */}

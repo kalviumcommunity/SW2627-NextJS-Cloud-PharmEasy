@@ -16,7 +16,7 @@ export default function SubscriptionBanner() {
               again.
             </h2>
             <p className="sub-banner-description">
-              Set a schedule once. We'll automatically place your<br />
+              Set a schedule once. We&apos;ll automatically place your<br />
               orders — no reordering, no forgetting.
             </p>
             <div className="sub-banner-checks">

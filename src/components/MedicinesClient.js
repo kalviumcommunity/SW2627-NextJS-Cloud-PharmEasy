@@ -102,7 +102,7 @@ export default function MedicinesClient({
         <div className="empty-state">
           <div className="empty-state-icon">🔍</div>
           <h2>No Medicines Found</h2>
-          <p>We couldn't find any medicines matching your search criteria. Try a different query or category.</p>
+          <p>We couldn&apos;t find any medicines matching your search criteria. Try a different query or category.</p>
         </div>
       ) : (
         <div className="medicine-grid">
