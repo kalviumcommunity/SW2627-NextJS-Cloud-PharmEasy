@@ -28,16 +28,6 @@ export default function FlowDrawer({ open, medicine, frequency, loading, error, 
     }
   }, [open]);
 
-  const [savedCard, setSavedCard] = useState(null);
-  const [useNewCard, setUseNewCard] = useState(false);
-
-  useEffect(() => {
-    if (!open) return;
-    fetch("/api/payment-methods")
-      .then((res) => res.json())
-      .then((data) => setSavedCard(data.paymentMethod || null))
-      .catch(() => {});
-  }, [open]);
 
   if (!open) return null;
 
