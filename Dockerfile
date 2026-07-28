@@ -8,12 +8,13 @@ COPY package.json package-lock.json ./
 COPY prisma ./prisma/
 
 # Install dependencies (including devDependencies for building)
-RUN npm ci
+RUN npm install
 
 # ---
 
 # Stage 2: Build the Next.js application
 FROM node:18-alpine AS builder
+RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
