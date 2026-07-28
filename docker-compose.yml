@@ -1,0 +1,43 @@
+version: '3.8'
+services:
+  # Database Service (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: pharmeasy-postgres-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: pharmeasy
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  # Web Application Service (Next.js)
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pharmeasy-nextjs-app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      # Connects using the container name 'db' as the host
+      - DATABASE_URL=postgresql://postgres:postgrespassword@db:5432/pharmeasy?schema=public
+      - JWT_SECRET=super-secret-jwt-key-change-me-in-production
+      - SCHEDULER_SECRET=super-secret-scheduler-key-change-me-in-production
+      - NODE_ENV=production
+    depends_on:
+      db:
+        condition: service_healthy
+    # Wait for the DB to be healthy, push database schema via Prisma, and run the app
+    command: sh -c "npx prisma db push && npm run start"
+# Persistent Volume for Postgres Database
+volumes:
+  postgres_data:
