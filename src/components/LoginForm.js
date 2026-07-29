@@ -103,7 +103,7 @@ export default function LoginForm() {
       </div>
 
       <div className="auth-footer">
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link href="/register" className="auth-link">
           Sign Up
         </Link>

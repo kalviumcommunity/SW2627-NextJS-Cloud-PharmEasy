@@ -39,7 +39,7 @@ describe("registerUser", () => {
     });
     expect(user).toEqual({ id: "user_1", name: "Ada", email: "ada@example.com" });
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "pharmeasy-jwt-secret-key-2026");
     expect(decoded.id).toBe("user_1");
   });
 
@@ -70,7 +70,7 @@ describe("loginUser", () => {
 
     expect(bcrypt.compare).toHaveBeenCalledWith("supersecret", "hashed_pw");
     expect(user).toEqual({ id: "user_1", name: "Ada", email: "ada@example.com" });
-    expect(jwt.verify(token, process.env.JWT_SECRET).id).toBe("user_1");
+    expect(jwt.verify(token, process.env.JWT_SECRET || "pharmeasy-jwt-secret-key-2026").id).toBe("user_1");
   });
 
   it("rejects when no account exists for the email", async () => {

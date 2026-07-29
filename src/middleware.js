@@ -70,7 +70,7 @@ export async function middleware(request) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  const payload = await verifyJWT(token, process.env.JWT_SECRET);
+  const payload = await verifyJWT(token, process.env.JWT_SECRET || "pharmeasy-jwt-secret-key-2026");
 
   if (!payload) {
     const response = NextResponse.redirect(new URL("/login", request.url));
