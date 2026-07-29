@@ -13,7 +13,7 @@ function makeRequest(pathname, token) {
 }
 
 function signToken(overrides = {}) {
-  return jwt.sign({ id: "user_1", ...overrides }, process.env.JWT_SECRET, {
+  return jwt.sign({ id: "user_1", ...overrides }, process.env.JWT_SECRET || "pharmeasy-jwt-secret-key-2026", {
     expiresIn: overrides.expiresIn || "1h",
   });
 }
@@ -56,7 +56,7 @@ describe("middleware route protection", () => {
   });
 
   it("redirects when the token is expired", async () => {
-    const expiredToken = jwt.sign({ id: "user_1" }, process.env.JWT_SECRET, {
+    const expiredToken = jwt.sign({ id: "user_1" }, process.env.JWT_SECRET || "pharmeasy-jwt-secret-key-2026", {
       expiresIn: "-10s",
     });
     const res = await middleware(makeRequest("/profile", expiredToken));
