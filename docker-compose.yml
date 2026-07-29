@@ -30,6 +30,7 @@ services:
     environment:
       # Connects using the container name 'db' as the host
       - DATABASE_URL=postgresql://postgres:postgrespassword@db:5432/pharmeasy?schema=public
+      - DIRECT_URL=postgresql://postgres:postgrespassword@db:5432/pharmeasy?schema=public
       - JWT_SECRET=super-secret-jwt-key-change-me-in-production
       - SCHEDULER_SECRET=super-secret-scheduler-key-change-me-in-production
       - NODE_ENV=production
