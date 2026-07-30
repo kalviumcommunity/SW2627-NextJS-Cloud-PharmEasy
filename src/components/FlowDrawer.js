@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { FREQUENCY_LABEL } from "@/lib/utils";
 import CardForm from "@/components/CardForm";
 import { paymentSchema } from "@/lib/schemas";
@@ -8,6 +9,7 @@ import { paymentSchema } from "@/lib/schemas";
 const EMPTY_CARD = { cardName: "", cardNumber: "", expiry: "", cvv: "" };
 
 export default function FlowDrawer({ open, medicine, frequency, loading, error, userAddress = "", onConfirm, onClose }) {
+  const router = useRouter();
   const [step, setStep] = useState("review"); // review | payment
   const [card, setCard] = useState(EMPTY_CARD);
   const [cardError, setCardError] = useState("");
@@ -116,9 +118,33 @@ export default function FlowDrawer({ open, medicine, frequency, loading, error, 
                   📍 Shipping Address
                 </h4>
                 {!useCustomAddress ? (
-                  <p style={{ fontSize: "13px", color: "var(--color-text-muted)", lineHeight: "1.4", marginBottom: "8px" }}>
-                    {userAddress || "No address on file. Please add an address in your profile."}
-                  </p>
+                  <>
+                    <p style={{ fontSize: "13px", color: "var(--color-text-muted)", lineHeight: "1.4", marginBottom: "8px" }}>
+                      {userAddress || "No address on file. Please add an address in your profile."}
+                    </p>
+                    {!userAddress && (
+                      <button
+                        type="button"
+                        onClick={() => router.push("/profile")}
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          fontSize: "13px",
+                          fontWeight: 600,
+                          color: "var(--color-primary)",
+                          background: "none",
+                          border: "none",
+                          padding: 0,
+                          marginBottom: "8px",
+                          cursor: "pointer",
+                          textDecoration: "underline",
+                        }}
+                      >
+                        + Add Address
+                      </button>
+                    )}
+                  </>
                 ) : (
                   <div style={{ marginBottom: "8px" }}>
                     <textarea
