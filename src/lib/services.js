@@ -614,6 +614,60 @@ export async function updateSubscriptionFrequency(id, userId, frequency) {
   });
 }
 
+/**
+ * Skips the upcoming refill for a subscription without cancelling it.
+ *
+ * Just pushes nextRefillDate forward by one interval so the scheduler
+ * doesn't pick it up this cycle, then resumes as normal from there.
+ * Blocked once the scheduler has already generated an order for the
+ * current cycle (a PENDING order tied to this subscription) — at that
+ * point the user should cancel the order instead, not the refill.
+ */
+export async function skipNextRefill(id, userId) {
+  const sub = await prisma.subscription.findFirst({
+    where: { id, userId },
+    include: { medicine: true },
+  });
+  if (!sub) {
+    throw new Error("Subscription not found");
+  }
+  if (sub.status !== SUBSCRIPTION_STATUS.ACTIVE) {
+    throw new Error("Only active subscriptions can skip a refill");
+  }
+
+  const pendingOrder = await prisma.order.findFirst({
+    where: { subscriptionId: id, status: ORDER_STATUS.PENDING },
+  });
+  if (pendingOrder) {
+    throw new Error(
+      "This refill has already started processing — cancel the order instead if you don't want it."
+    );
+  }
+
+  const skippedDate = sub.nextRefillDate;
+  const nextRefillDate = addIntervalForFrequency(sub.nextRefillDate, sub.frequency);
+
+  const updated = await prisma.subscription.update({
+    where: { id },
+    data: { nextRefillDate, lastReminderSentFor: null },
+    include: { medicine: true },
+  });
+
+  await createNotification({
+    userId,
+    message: `Skipped your ${sub.medicine.name} refill scheduled for ${skippedDate.toLocaleDateString(
+      "en-IN",
+      { day: "numeric", month: "short", year: "numeric" }
+    )}. Next refill moved to ${nextRefillDate.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    })}.`,
+    type: NOTIFICATION_TYPE.REFILL_SKIPPED,
+  });
+
+  return updated;
+}
 
 // ==========================================
 // SCHEDULER SERVICES
