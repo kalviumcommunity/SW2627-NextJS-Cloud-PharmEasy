@@ -18,7 +18,7 @@ const BADGE_CLASS = {
   [SUBSCRIPTION_STATUS.CANCELLED]: "badge-cancelled",
 };
 
-export default function SubscriptionCard({ subscription, onUpdateStatus, onUpdateFrequency, loading }) {
+export default function SubscriptionCard({ subscription, onUpdateStatus, onUpdateFrequency, onSkipRefill, loading }) {
   const { medicine, status, frequency, nextRefillDate } = subscription;
   const emoji = EMOJI_MAP[medicine?.category?.toLowerCase()] || "💊";
 
@@ -84,8 +84,22 @@ export default function SubscriptionCard({ subscription, onUpdateStatus, onUpdat
         ) : (
           <>
             {status === SUBSCRIPTION_STATUS.ACTIVE && (
-              <button disabled={loading} onClick={() => setIsEditing(true)} className="btn btn-secondary btn-sm">
+              <button
+                disabled={loading}
+                onClick={() => setIsEditing(true)}
+                className="btn btn-secondary btn-sm"
+              >
                 Edit
+              </button>
+            )}
+            {status === SUBSCRIPTION_STATUS.ACTIVE && (
+              <button
+                disabled={loading}
+                onClick={() => onSkipRefill()}
+                className="btn btn-secondary btn-sm"
+                title="Skip just the upcoming refill — subscription stays active"
+              >
+                {loading ? "..." : "Skip next refill"}
               </button>
             )}
             {status === SUBSCRIPTION_STATUS.ACTIVE && (
