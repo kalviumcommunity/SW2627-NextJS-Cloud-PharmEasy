@@ -146,6 +146,10 @@ docs/PRD.md                 # full product requirements
 Figma: [PharmEasy — UI Designs](https://www.figma.com/design/hBY7Ns7OR3xrpdktr61HNe/PharmEasy?node-id=0-1&t=O0hN1tK6XLeD86HQ-1)
 
 ---
+## 🎨 Design
+
+Figma: [PharmEasy — UI Designs](https://www.figma.com/design/hBY7Ns7OR3xrpdktr61HNe/PharmEasy?node-id=0-1&t=O0hN1tK6XLeD86HQ-1)
+---
 
 ## 🎨 Design
 
