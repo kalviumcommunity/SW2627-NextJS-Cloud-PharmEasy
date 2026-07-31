@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/auth";
-import { updateSubscriptionStatus, updateSubscriptionFrequency } from "@/lib/services";
+import {
+  updateSubscriptionStatus,
+  updateSubscriptionFrequency,
+  skipNextRefill,
+} from "@/lib/services";
 
 export async function PATCH(request, { params }) {
   try {
@@ -10,7 +14,12 @@ export async function PATCH(request, { params }) {
     }
 
     const { id } = params;
-    const { status, frequency } = await request.json();
+    const { status, frequency, action } = await request.json();
+
+    if (action === "skip") {
+      const updated = await skipNextRefill(id, userId);
+      return NextResponse.json(updated);
+    }
 
     if (!status && !frequency) {
       return NextResponse.json(

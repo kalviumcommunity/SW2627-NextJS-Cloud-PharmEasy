@@ -1,46 +1,45 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/auth";
-import { getSubscriptions, createSubscription } from "@/lib/services";
-import { subscriptionSchema } from "@/lib/schemas";
+import {
+  updateSubscriptionStatus,
+  updateSubscriptionFrequency,
+  skipNextRefill,
+} from "@/lib/services";
 
-export async function GET(request) {
+export async function PATCH(request, { params }) {
   try {
     const userId = getUserIdFromRequest();
     if (!userId) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const subscriptions = await getSubscriptions(userId);
-    return NextResponse.json(subscriptions);
-  } catch (err) {
-    return NextResponse.json(
-      { message: err.message || "Failed to fetch subscriptions" },
-      { status: 500 }
-    );
-  }
-}
+    const { id } = params;
+    const { status, frequency, action } = await request.json();
 
-export async function POST(request) {
-  try {
-    const userId = getUserIdFromRequest();
-    if (!userId) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (action === "skip") {
+      const updated = await skipNextRefill(id, userId);
+      return NextResponse.json(updated);
     }
 
-    const body = await request.json();
-    const parsed = subscriptionSchema.safeParse(body);
-    if (!parsed.success) {
+    if (!status && !frequency) {
       return NextResponse.json(
-        { message: parsed.error.issues[0]?.message || "Invalid subscription details" },
+        { message: "Provide a status or frequency to update" },
         { status: 400 }
       );
     }
 
-    const subscription = await createSubscription({ userId, ...parsed.data });
-    return NextResponse.json(subscription, { status: 201 });
+    let updated;
+    if (frequency) {
+      updated = await updateSubscriptionFrequency(id, userId, frequency);
+    }
+    if (status) {
+      updated = await updateSubscriptionStatus(id, userId, status);
+    }
+
+    return NextResponse.json(updated);
   } catch (err) {
     return NextResponse.json(
-      { message: err.message || "Failed to create subscription" },
+      { message: err.message || "Failed to update subscription" },
       { status: 500 }
     );
   }
