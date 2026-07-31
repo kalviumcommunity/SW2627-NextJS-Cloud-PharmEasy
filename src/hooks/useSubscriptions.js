@@ -44,5 +44,9 @@ export function useSubscriptions(initialSubscriptions = []) {
     return patchSubscription(subscriptionId, { frequency });
   }
 
-  return { subscriptions, updateStatus, updateFrequency, loadingId, error };
+  async function skipNextRefill(subscriptionId) {
+    return patchSubscription(subscriptionId, { action: "skip" });
+  }
+
+  return { subscriptions, updateStatus, updateFrequency, skipNextRefill, loadingId, error };
 }
