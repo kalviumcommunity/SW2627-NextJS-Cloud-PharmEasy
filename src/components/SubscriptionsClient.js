@@ -5,7 +5,7 @@ import { useSubscriptions } from "@/hooks/useSubscriptions";
 import SubscriptionCard from "@/components/SubscriptionCard";
 
 export default function SubscriptionsClient({ initialSubscriptions }) {
-  const { subscriptions, updateStatus, updateFrequency, loadingId, error } = useSubscriptions(initialSubscriptions);
+  const { subscriptions, updateStatus, updateFrequency, skipNextRefill, loadingId, error } = useSubscriptions(initialSubscriptions);
 
   return (
     <div>
@@ -46,6 +46,7 @@ export default function SubscriptionsClient({ initialSubscriptions }) {
                 loading={loadingId === sub.id}
                 onUpdateStatus={(status) => updateStatus(sub.id, status)}
                 onUpdateFrequency={(frequency) => updateFrequency(sub.id, frequency)}
+                onSkipRefill={() => skipNextRefill(sub.id)}
               />
             ))}
           </div>

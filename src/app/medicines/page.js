@@ -4,6 +4,30 @@ import Navbar from "@/components/Navbar";
 import AppLayout from "@/app/(app)/layout";
 import MedicinesClient from "@/components/MedicinesClient";
 
+export function generateMetadata({ searchParams }) {
+  const category = searchParams?.category;
+  const q = searchParams?.q;
+
+  const title =
+    category && category.toLowerCase() !== "all"
+      ? `${category} Medicines Online`
+      : "Browse Medicines Online";
+
+  const description = q
+    ? `Search results for "${q}" — browse genuine medicines available on PharmEasy with fast delivery and auto-refill subscriptions.`
+    : "Browse our full catalogue of genuine medicines. Order online with fast delivery or set up an auto-refill subscription.";
+
+  return {
+    title,
+    description,
+    // Search/category query params create near-duplicate URLs for the same
+    // content — point crawlers back at the canonical, unfiltered listing.
+    alternates: {
+      canonical: "/medicines",
+    },
+  };
+}
+
 export default async function MedicinesPage({ searchParams }) {
   const cookieStore = cookies();
   const token = cookieStore.get("token")?.value;

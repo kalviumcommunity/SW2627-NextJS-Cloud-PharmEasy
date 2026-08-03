@@ -1,10 +1,31 @@
 import { NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/auth";
 import {
+  createSubscription,
   updateSubscriptionStatus,
   updateSubscriptionFrequency,
   skipNextRefill,
 } from "@/lib/services";
+
+export async function POST(request) {
+  try {
+    const userId = getUserIdFromRequest();
+    if (!userId) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { medicineId, frequency } = body;
+
+    const subscription = await createSubscription({ userId, medicineId, frequency });
+    return NextResponse.json(subscription, { status: 201 });
+  } catch (err) {
+    return NextResponse.json(
+      { message: err.message || "Failed to create subscription" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function PATCH(request, { params }) {
   try {
