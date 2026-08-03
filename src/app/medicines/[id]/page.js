@@ -6,6 +6,41 @@ import MedicineDetailClient from "@/components/MedicineDetailClient";
 import { prisma } from "@/lib/prisma";
 import { getUserIdFromRequest } from "@/lib/auth";
 
+export async function generateMetadata({ params }) {
+  const { id } = params;
+  const medicine = await getMedicineById(id);
+
+  if (!medicine) {
+    return {
+      title: "Medicine Not Found",
+      robots: { index: false, follow: true },
+    };
+  }
+
+  const description =
+    medicine.description?.slice(0, 155) ||
+    `Buy ${medicine.name} online from PharmEasy. Set up an auto-refill subscription and never miss a dose.`;
+
+  return {
+    title: `Buy ${medicine.name} Online`,
+    description,
+    alternates: {
+      canonical: `/medicines/${medicine.id}`,
+    },
+    openGraph: {
+      title: `Buy ${medicine.name} Online | PharmEasy`,
+      description,
+      type: "website",
+      images: medicine.imageUrl ? [{ url: medicine.imageUrl }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `Buy ${medicine.name} Online | PharmEasy`,
+      description,
+    },
+  };
+}
+
 export default async function MedicineDetailPage({ params }) {
   const cookieStore = cookies();
   const token = cookieStore.get("token")?.value;
@@ -53,12 +88,41 @@ export default async function MedicineDetailPage({ params }) {
 
   const content = <MedicineDetailClient medicine={medicine} isLoggedIn={isLoggedIn} userAddress={userAddress} />;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: medicine.name,
+    description: medicine.description || `${medicine.name} available on PharmEasy.`,
+    category: medicine.category || undefined,
+    image: medicine.imageUrl || undefined,
+    offers: {
+      "@type": "Offer",
+      price: medicine.price,
+      priceCurrency: "INR",
+      availability: "https://schema.org/InStock",
+    },
+  };
+
+  const structuredData = (
+    <script
+      type="application/ld+json"
+      // eslint-disable-next-line react/no-danger
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+
   if (isLoggedIn) {
-    return <AppLayout>{content}</AppLayout>;
+    return (
+      <AppLayout>
+        {structuredData}
+        {content}
+      </AppLayout>
+    );
   }
 
   return (
     <>
+      {structuredData}
       <Navbar />
       <main style={{ minHeight: "calc(100vh - 80px)", backgroundColor: "var(--bg-main)" }}>
         {content}
