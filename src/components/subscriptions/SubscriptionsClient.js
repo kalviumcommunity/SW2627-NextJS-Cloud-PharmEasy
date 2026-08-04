@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
-import SubscriptionCard from "@/components/SubscriptionCard";
+import SubscriptionCard from "@/components/subscriptions/SubscriptionCard";
 
 export default function SubscriptionsClient({ initialSubscriptions }) {
   const { subscriptions, updateStatus, updateFrequency, skipNextRefill, loadingId, error } = useSubscriptions(initialSubscriptions);

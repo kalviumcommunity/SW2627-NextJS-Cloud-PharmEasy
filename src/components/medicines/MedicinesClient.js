@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import MedicineVisual from "@/components/MedicineVisual";
+import MedicineVisual from "@/components/medicines/MedicineVisual";
 
 const CATEGORIES = ["All", "Diabetes", "Hypertension", "Thyroid", "Cardiac", "Supplements"];
 

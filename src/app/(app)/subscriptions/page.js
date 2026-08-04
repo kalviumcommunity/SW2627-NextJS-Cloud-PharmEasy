@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getUserIdFromRequest } from "@/lib/auth";
 import { getSubscriptions } from "@/lib/services";
-import SubscriptionsClient from "@/components/SubscriptionsClient";
+import SubscriptionsClient from "@/components/subscriptions/SubscriptionsClient";
 
 export default async function SubscriptionsPage() {
   const userId = getUserIdFromRequest();

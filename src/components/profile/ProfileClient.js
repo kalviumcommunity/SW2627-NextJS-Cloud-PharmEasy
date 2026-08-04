@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import CardForm from "@/components/CardForm";
+import CardForm from "@/components/ui/CardForm";
 
 const EMPTY_CARD = { cardName: "", cardNumber: "", expiry: "", cvv: "0000" };
 

@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
 import { getMedicineById } from "@/lib/services";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/layout/Navbar";
 import AppLayout from "@/app/(app)/layout";
-import MedicineDetailClient from "@/components/MedicineDetailClient";
+import MedicineDetailClient from "@/components/medicines/MedicineDetailClient";
 import { prisma } from "@/lib/prisma";
 import { getUserIdFromRequest } from "@/lib/auth";
 

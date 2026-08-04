@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getUserIdFromRequest } from "@/lib/auth";
 import { getNotifications } from "@/lib/services";
-import NotificationList from "@/components/NotificationList";
+import NotificationList from "@/components/notifications/NotificationList";
 
 export default async function NotificationsPage() {
   const userId = getUserIdFromRequest();
