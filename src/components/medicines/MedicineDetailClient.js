@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import FrequencySelector from "@/components/FrequencySelector";
-import FlowDrawer from "@/components/FlowDrawer";
-import DetailDrawer from "@/components/DetailDrawer";
-import MedicineVisual from "@/components/MedicineVisual";
+import FrequencySelector from "@/components/medicines/FrequencySelector";
+import FlowDrawer from "@/components/medicines/FlowDrawer";
+import DetailDrawer from "@/components/medicines/DetailDrawer";
+import MedicineVisual from "@/components/medicines/MedicineVisual";
 import { subscriptionSchema } from "@/lib/schemas";
 import { useCart } from "@/hooks/useCart";
 

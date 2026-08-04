@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
 import { getMedicines } from "@/lib/services";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/layout/Navbar";
 import AppLayout from "@/app/(app)/layout";
-import MedicinesClient from "@/components/MedicinesClient";
+import MedicinesClient from "@/components/medicines/MedicinesClient";
 
 export function generateMetadata({ searchParams }) {
   const category = searchParams?.category;

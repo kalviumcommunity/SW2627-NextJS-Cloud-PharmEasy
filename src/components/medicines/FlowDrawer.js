@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FREQUENCY_LABEL } from "@/lib/utils";
-import CardForm from "@/components/CardForm";
+import CardForm from "@/components/ui/CardForm";
 import { paymentSchema } from "@/lib/schemas";
 
 const EMPTY_CARD = { cardName: "", cardNumber: "", expiry: "", cvv: "" };

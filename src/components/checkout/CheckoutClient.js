@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import CardForm from "@/components/CardForm";
+import CardForm from "@/components/ui/CardForm";
 import { paymentSchema } from "@/lib/schemas";
 import { PAYMENT_STATUS } from "@/lib/utils";
 import { useCart } from "@/hooks/useCart";

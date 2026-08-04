@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getUserIdFromRequest } from "@/lib/auth";
 import { getMedicineById } from "@/lib/services";
-import CheckoutClient from "@/components/CheckoutClient";
+import CheckoutClient from "@/components/checkout/CheckoutClient";
 import { prisma } from "@/lib/prisma";
 
 export default async function CheckoutPage({ searchParams }) {

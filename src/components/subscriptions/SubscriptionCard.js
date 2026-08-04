@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { FREQUENCY_LABEL, SUBSCRIPTION_STATUS, formatDate } from "@/lib/utils";
-import FrequencySelector from "@/components/FrequencySelector";
+import FrequencySelector from "@/components/medicines/FrequencySelector";
 
 const EMOJI_MAP = {
   diabetes: "💉",
