@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { GET, POST } from "@/app/api/orders/route";
 import { getUserIdFromRequest } from "@/lib/auth";
-import { getOrders, createDirectOrder } from "@/lib/services";
+import { getOrders, createDirectOrder, createOrderFromCart } from "@/lib/services";
 
 jest.mock("@/lib/auth", () => ({
   getUserIdFromRequest: jest.fn(),
@@ -10,6 +10,7 @@ jest.mock("@/lib/auth", () => ({
 jest.mock("@/lib/services", () => ({
   getOrders: jest.fn(),
   createDirectOrder: jest.fn(),
+  createOrderFromCart: jest.fn(),
 }));
 
 function makePostRequest(body) {
@@ -84,5 +85,43 @@ describe("POST /api/orders", () => {
 
     expect(res.status).toBe(400);
     expect(createDirectOrder).not.toHaveBeenCalled();
+  });
+
+  it("creates a cart order for the authenticated user with valid items", async () => {
+    getUserIdFromRequest.mockReturnValue("user_1");
+    createOrderFromCart.mockResolvedValue({ id: "order_cart_1", userId: "user_1", totalAmount: 100 });
+
+    const res = await POST(
+      makePostRequest({
+        items: [
+          { medicineId: "med_1", quantity: 2 },
+          { medicineId: "med_2", quantity: 1 },
+        ],
+      })
+    );
+    const body = await res.json();
+
+    expect(res.status).toBe(201);
+    expect(createOrderFromCart).toHaveBeenCalledWith({
+      userId: "user_1",
+      items: [
+        { medicineId: "med_1", quantity: 2 },
+        { medicineId: "med_2", quantity: 1 },
+      ],
+    });
+    expect(body.id).toBe("order_cart_1");
+  });
+
+  it("rejects invalid cart order input", async () => {
+    getUserIdFromRequest.mockReturnValue("user_1");
+
+    const res = await POST(
+      makePostRequest({
+        items: [],
+      })
+    );
+
+    expect(res.status).toBe(400);
+    expect(createOrderFromCart).not.toHaveBeenCalled();
   });
 });
