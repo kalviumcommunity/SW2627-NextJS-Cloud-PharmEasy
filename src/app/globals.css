@@ -33,6 +33,11 @@
   padding: 0;
 }
 
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 body {
   background-color: var(--bg-main);
   color: var(--color-text-main);
@@ -41,6 +46,7 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  width: 100%;
 }
 
 /* Scrollbar Styling */
@@ -2419,6 +2425,65 @@ p {
   }
 }
 
+@media (max-width: 600px) {
+  .dashboard-section {
+    padding: 16px;
+  }
+
+  .calendar-month-grid {
+    gap: 4px;
+  }
+
+  .calendar-weekday-row {
+    gap: 4px;
+    font-size: 10px;
+  }
+
+  .calendar-day {
+    height: 40px;
+    padding: 4px;
+  }
+
+  .today-number-badge {
+    min-width: 20px;
+    height: 18px;
+    padding: 0 3px;
+    font-size: 11px;
+  }
+
+  .refill-dot,
+  .delivery-dot {
+    bottom: 4px;
+  }
+  .refill-dot { left: 4px; }
+  .delivery-dot { right: 4px; }
+
+  .day-tooltip {
+    min-width: 0;
+    width: 150px;
+    max-width: 60vw;
+    left: 0;
+    transform: translateX(0) translateY(4px);
+  }
+
+  .calendar-day:hover .day-tooltip,
+  .calendar-day:focus-visible .day-tooltip {
+    transform: translateX(0) translateY(0);
+  }
+
+  .day-tooltip::after {
+    left: 12px;
+  }
+
+  .dashboard-greeting {
+    font-size: 22px;
+  }
+
+  .week-chip {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
 
 /* ════════════════════════════════════════════════════════════════
    SECTION 5 — MEDICINES PAGES  (/medicines, /medicines/[id])
